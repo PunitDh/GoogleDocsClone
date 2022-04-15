@@ -23,7 +23,6 @@ function TextEditor({ socket, setSocket }) {
   const { id: documentId } = useParams();
   const [quill, setQuill] = useState(null);
   const [title, setTitle] = useState(`Document ${documentId}`);
-  console.log(documentId);
 
   const saveDocument = () => {
     socket.emit("save-document", quill.getContents());

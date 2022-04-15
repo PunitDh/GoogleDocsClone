@@ -4,18 +4,18 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import "../documents.css";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
-function Thumbnail({
-  link,
-  display,
-  title,
-  create,
-  visible,
-  id,
-  showModal,
-  setShowModal,
-  handleDelete,
-}) {
-  console.log({ id });
+function Thumbnail({ link, display, title, create, visible, id, socket }) {
+  const [showModal, setShowModal] = useState(false);
+
+  const handleDelete = () => {
+    console.log("Deleting document with id: ", id);
+    console.log(socket);
+    if (socket) {
+      console.log("Sending delete request to server with id: ", id);
+      socket.emit("delete-document", id);
+      setShowModal(false);
+    }
+  };
 
   return (
     <>
@@ -37,7 +37,7 @@ function Thumbnail({
         <DeleteConfirmationModal
           title={title}
           setShowModal={setShowModal}
-          handleDelete={() => handleDelete(id)}
+          handleDelete={handleDelete}
           showModal={showModal}
         />
       )}

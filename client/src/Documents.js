@@ -10,25 +10,10 @@ function Documents() {
   const [documents, setDocuments] = useState([]);
   const [search, setSearch] = useState("");
   const [socket, setSocket] = useState(null);
-  const [showModal, setShowModal] = useState(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
     setSearch(e.target.value);
-  };
-
-  const handleDelete = (id) => {
-    console.log("Deleting document with id: ", id);
-    console.log(socket);
-    if (socket) {
-      console.log("Sending delete request to server with id: ", id);
-      socket.emit("delete-document", id);
-      setShowModal(false);
-    }
-    socket.on("document-deleted", (id) => {
-      console.log("Document deleted: ", id);
-      setDocuments(documents.filter((document) => document._id !== id));
-    });
   };
 
   useEffect(() => {
@@ -61,6 +46,13 @@ function Documents() {
   }, []);
 
   useEffect(() => {
+    if (socket)
+      socket.on("document-deleted", (id) => {
+        setDocuments(documents.filter((document) => document._id !== id));
+      });
+  }, [documents]);
+
+  useEffect(() => {
     if (search === "") {
       setDocuments(
         documents.map((document) => ({ ...document, visible: true }))
@@ -78,8 +70,6 @@ function Documents() {
         it.visible = false;
       }
     });
-
-    console.log({ search: search });
   }, [search]);
 
   return (
@@ -128,9 +118,7 @@ function Documents() {
                 display={document.data}
                 title={document.title}
                 visible={document.visible}
-                showModal={showModal}
-                setShowModal={setShowModal}
-                handleDelete={handleDelete}
+                socket={socket}
               />
             ))}
           </div>
