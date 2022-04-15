@@ -35,6 +35,41 @@ body {
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
 }
 
+.document-title-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.3rem;
+}
+
+.button-icon {
+  cursor: pointer;
+  color: gray;
+}
+
+.button-icon:hover {
+  color: #02153d;
+}
+
+.document-title {
+  width: 90%;
+  border: 1px solid rgba(0, 0, 0, 0.0);
+  color: gray;
+  background-color: #eee;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  margin-left: 1.5rem;
+  font-size: 1.2rem;
+}
+
+.document-title:focus {
+  outline: none;
+}
+
+.document-title:focus {
+  color: black;
+}
+
 @page {
   margin: 1in;
 }
@@ -54,6 +89,10 @@ body {
   }
 
   .container .ql-toolbar.ql-snow {
+    display: none;
+  }
+
+  .document-title {
     display: none;
   }
 }

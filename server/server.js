@@ -25,10 +25,15 @@ const defaultValue = "";
 io.on("connection", (socket) => {
   console.log("Web socket connected to socketID:", socket.id);
 
+  socket.on("get-documents", async () => {
+    const documents = await Document.find();
+    socket.emit("load-documents", documents);
+  });
+
   socket.on("get-document", async (documentId) => {
     const document = await findOrCreateDocument(documentId);
     socket.join(documentId);
-    socket.emit("load-document", document.data);
+    socket.emit("load-document", document);
 
     socket.on("send-changes", (delta) => {
       console.log(delta);
@@ -38,6 +43,13 @@ io.on("connection", (socket) => {
     socket.on("save-document", async (data) => {
       const save = await Document.findByIdAndUpdate(documentId, { data });
       console.log("Document saved", save);
+    });
+
+    socket.on("set-title", async (title) => {
+      const save = await Document.findByIdAndUpdate(documentId, {
+        title,
+      });
+      console.log("Title saved", save);
     });
   });
 });

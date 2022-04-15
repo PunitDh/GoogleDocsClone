@@ -5,18 +5,15 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { v4 as uuidV4 } from "uuid";
+import Documents from "./Documents";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route
-          exact
-          path="/"
-          element={<Navigate to={`/documents/${uuidV4()}`} />}
-        />
+        <Route exact path="/" element={<Navigate to="/documents/" />} />
         <Route path="/documents/:id" element={<TextEditor />} />
+        <Route path="/documents/" element={<Documents />} />
       </Routes>
     </Router>
   );

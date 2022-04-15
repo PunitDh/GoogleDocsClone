@@ -2,10 +2,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { io } from "socket.io-client";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 
 const SAVE_INTERVAL_MS = 10000;
 const TOOLBAR_OPTIONS = [
+  [{ title: "" }],
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
   [{ font: [] }],
   [{ list: "ordered" }, { list: "bullet" }],
@@ -21,6 +23,7 @@ function TextEditor() {
   const { id: documentId } = useParams();
   const [socket, setSocket] = useState(null);
   const [quill, setQuill] = useState(null);
+  const [title, setTitle] = useState(`Document ${documentId}`);
   console.log(documentId);
 
   useEffect(() => {
@@ -33,8 +36,9 @@ function TextEditor() {
     if (socket == null || quill == null) return;
 
     socket.once("load-document", (document) => {
-      quill.setContents(document);
+      quill.setContents(document.data);
       quill.enable(true);
+      setTitle(document.title);
     });
 
     socket.emit("get-document", documentId);
@@ -69,6 +73,15 @@ function TextEditor() {
     };
   }, [socket, quill]);
 
+  const handleTitleChange = (e) => {
+    e.preventDefault();
+    setTitle(e.target.value);
+  };
+
+  const saveTitle = () => {
+    socket.emit("set-title", title);
+  };
+
   useEffect(() => {
     if (socket == null || quill == null) return;
 
@@ -93,7 +106,25 @@ function TextEditor() {
     setQuill(q);
   }, []);
 
-  return <div className="container" ref={wrapperRef}></div>;
+  return (
+    <div>
+      <div className="document-title-container">
+        <input
+          className="document-title"
+          type="text"
+          value={title}
+          onChange={(e) => handleTitleChange(e)}
+          onBlur={saveTitle}
+          title="Rename"
+        />
+        <Link to="/documents/" className="button-icon">
+          <CloseTwoToneIcon />
+        </Link>
+      </div>
+
+      <div className="container" ref={wrapperRef}></div>
+    </div>
+  );
 }
 
 export default TextEditor;
