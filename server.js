@@ -7,12 +7,7 @@ const app = express();
 const cors = require("cors");
 const http = require("http").Server(app);
 const port = process.env.PORT || 3010;
-const io = require("socket.io")(port, {
-  cors: {
-    origin: process.env.FRONTEND_URL,
-    methods: ["GET", "POST"],
-  },
-});
+const io = require("socket.io")(http);
 
 app.use(cors());
 app.use(express.static(__dirname));
@@ -86,4 +81,4 @@ async function findOrCreateDocument(id) {
   return await Document.create({ _id: id, data: defaultValue });
 }
 
-// http.listen(port, () => console.log("Server started on port", port));
+http.listen(port, () => console.log("Server started on port", port));
