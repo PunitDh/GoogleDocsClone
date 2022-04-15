@@ -2,6 +2,8 @@ require("dotenv").config();
 const path = require("path");
 const mongoose = require("mongoose");
 const Document = require("./Document");
+const express = require("express");
+const app = express();
 
 console.log("Server starting...");
 
