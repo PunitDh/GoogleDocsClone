@@ -81,4 +81,5 @@ async function findOrCreateDocument(id) {
   return await Document.create({ _id: id, data: defaultValue });
 }
 
-http.listen(port, () => console.log("Server started on port", port));
+isProduction &&
+  http.listen(port, () => console.log("Server started on port", port));
