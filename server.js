@@ -1,35 +1,9 @@
 require("dotenv").config();
-const path = require("path");
 const mongoose = require("mongoose");
 const Document = require("./Document");
-const express = require("express");
-const app = express();
-const cors = require("cors");
-const http = require("http").Server(app);
-const port = process.env.PORT || 3010;
-const io = require("socket.io")(http);
-
-app.use(cors());
-app.use(express.static(__dirname));
-
-console.log("Server starting...");
-
 const isProduction = process.env.NODE_ENV === "production";
 
-isProduction &&
-  app.get("/", (_, res) => {
-    res
-      .status(200)
-      .sendFile(path.join(__dirname, "client", "build", "index.html"));
-  });
-
-isProduction &&
-  app.use(express.static(path.join(__dirname, "client", "build")));
-
-isProduction &&
-  app.get("*", (_, res) => {
-    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
-  });
+console.log("Server starting...");
 
 mongoose
   .connect(process.env.MONGODB_URL)
@@ -39,6 +13,18 @@ mongoose
   .catch((err) => {
     console.log("Failed to connect to MongoDB database", err);
   });
+
+const io = require("socket.io")(process.env.PORT || 3001, {
+  cors: {
+    origin: process.env.FRONTEND_URL,
+    methods: ["GET", "POST"],
+  },
+});
+
+// isProduction &&
+//   app.get("*", (_, res) => {
+//     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+//   });
 
 const defaultValue = "";
 
@@ -80,6 +66,3 @@ async function findOrCreateDocument(id) {
   if (document) return document;
   return await Document.create({ _id: id, data: defaultValue });
 }
-
-isProduction &&
-  http.listen(port, () => console.log("Server started on port", port));

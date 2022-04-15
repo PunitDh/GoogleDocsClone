@@ -96,3 +96,10 @@ body {
     display: none;
   }
 }
+
+@media screen and (max-width: 600px) {
+  .container .ql-toolbar.ql-snow {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
