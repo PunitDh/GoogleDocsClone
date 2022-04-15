@@ -10,6 +10,7 @@ nav {
   justify-content: space-between;
   align-items: center;
   position: fixed;
+  z-index: 1000;
 }
 
 .icon-container {
@@ -97,10 +98,6 @@ main section:nth-child(2) {
   }
 }
 
-.document-thumbnail-title {
-  align-self: flex-end;
-}
-
 .document-container {
   width: 8.5rem;
   height: 14rem;
@@ -109,9 +106,10 @@ main section:nth-child(2) {
   flex-direction: column;
   gap: 0.5rem;
   cursor: pointer;
+  position: relative;
 }
 
-.document-container:hover {
+.document-container:hover .document-thumbnail-title-link {
   color: #02153d;
 }
 
@@ -137,6 +135,104 @@ main section:nth-child(2) {
   font-size: 0.4rem;
   overflow-x: hidden;
   overflow-y: hidden;
+}
+
+.document-thumbnail-title-link {
+  text-decoration: none;
+  color: #666;
+}
+
+.delete-confirmation-dialog {
+  position: fixed;
+  top: 30%;
+  left: 0%;
+  width: 20rem;
+  height: 10rem;
+  color: gray;
+  border-radius: 1rem;
+  background-color: lightgray;
+  z-index: 100;
+  padding-top: 0;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+  border: 1px solid rgba(0,0,0,0.1);
+  user-select: none;
+}
+
+.delete-confirmation-dialog-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.delete-confirmation-dialog-title {
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  align-self: flex-start;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bolder;
+}
+
+.delete-confirmation-icon {
+  color: lightcoral;
+  margin-right: 0.5rem;
+}
+
+.delete-confirmation-dialog-buttons-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  height: 5rem;
+}
+
+.delete-confirmation-dialog-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: 0.85rem;
+}
+
+.delete-confirmation-dialog-button {
+  width: 5rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  background-color: #3e5ea1;  
+  cursor: pointer;
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.3);
+}
+
+.delete-confirmation-dialog-button:hover {
+  outline: 1px solid black;
+  background-color: #02153d;
+}
+
+.delete-confirmation-dialog-button:active {
+  transform: translateY(2px);
+}
+
+.delete-icon {
+  position: absolute;
+  bottom: 3.5rem;
+  right: 0.5rem;
+  cursor: pointer;
+  color: gray;
+}
+
+.delete-icon:hover {
+  color: #02153d;
 }
 
 .document:hover, .document-content:hover {

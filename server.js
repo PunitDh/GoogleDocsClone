@@ -1,39 +1,22 @@
-const isProduction = process.env.NODE_ENV === "production";
 require("dotenv").config();
+const isProduction = process.env.NODE_ENV === "production";
 const path = require("path");
 const mongoose = require("mongoose");
-const Document = require("./Document");
+const Document = require("./models/Document");
+const User = require("./models/User");
 const express = require("express");
-const app = express();
+const app = isProduction && express();
 const cors = require("cors");
-const http = require("http").Server(app);
+const http = isProduction && require("http").Server(app);
 const port = process.env.PORT || 3010;
+let io;
 
 console.log({ isProduction });
-
-const io = require("socket.io")(
-  isProduction
-    ? http
-    : (process.env.PORT || 3001,
-      {
-        cors: {
-          origin: process.env.FRONTEND_URL,
-          methods: ["GET", "POST"],
-        },
-      })
-);
 
 isProduction && app.use(cors());
 isProduction && app.use(express.static(__dirname));
 
 console.log("Server starting...");
-
-isProduction &&
-  app.get("/", (_, res) => {
-    res
-      .status(200)
-      .sendFile(path.join(__dirname, "client", "build", "index.html"));
-  });
 
 isProduction &&
   app.use(express.static(path.join(__dirname, "client", "build")));
@@ -52,14 +35,31 @@ mongoose
     console.log("Failed to connect to MongoDB database", err);
   });
 
+if (isProduction) {
+  io = require("socket.io")(http);
+} else {
+  io = require("socket.io")(process.env.PORT || 3001, {
+    cors: {
+      origin: process.env.FRONTEND_URL,
+      methods: ["GET", "POST"],
+    },
+  });
+}
+
 const defaultValue = "";
 
 io.on("connection", (socket) => {
   console.log("Web socket connected to socketID:", socket.id);
 
   socket.on("get-documents", async () => {
-    const documents = await Document.find();
+    const documents = await Document.find().sort({ updatedAt: -1 });
     socket.emit("load-documents", documents);
+  });
+
+  socket.on("delete-document", async (documentId) => {
+    const deleted = await Document.findByIdAndDelete(documentId);
+    console.log("Document deleted", deleted);
+    socket.emit("document-deleted", documentId);
   });
 
   socket.on("get-document", async (documentId) => {

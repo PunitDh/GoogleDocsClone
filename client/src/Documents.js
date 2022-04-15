@@ -9,14 +9,31 @@ import Thumbnail from "./components/Thumbnail";
 function Documents() {
   const [documents, setDocuments] = useState([]);
   const [search, setSearch] = useState("");
+  const [socket, setSocket] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
     setSearch(e.target.value);
   };
 
+  const handleDelete = (id) => {
+    console.log("Deleting document with id: ", id);
+    console.log(socket);
+    if (socket) {
+      console.log("Sending delete request to server with id: ", id);
+      socket.emit("delete-document", id);
+      setShowModal(false);
+    }
+    socket.on("document-deleted", (id) => {
+      console.log("Document deleted: ", id);
+      setDocuments(documents.filter((document) => document._id !== id));
+    });
+  };
+
   useEffect(() => {
     const s = io(process.env.REACT_APP_SERVER_URL);
+    setSocket(s);
     s.emit("get-documents");
     s.on("load-documents", (documents) => {
       setDocuments(
@@ -106,10 +123,14 @@ function Documents() {
             {documents.map((document) => (
               <Thumbnail
                 key={document._id}
+                id={document._id}
                 link={`/documents/${document._id}`}
                 display={document.data}
                 title={document.title}
                 visible={document.visible}
+                showModal={showModal}
+                setShowModal={setShowModal}
+                handleDelete={handleDelete}
               />
             ))}
           </div>

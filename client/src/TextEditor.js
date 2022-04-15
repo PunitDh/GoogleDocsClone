@@ -19,16 +19,20 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ];
 
-function TextEditor() {
+function TextEditor({ socket, setSocket }) {
   const { id: documentId } = useParams();
-  const [socket, setSocket] = useState(null);
   const [quill, setQuill] = useState(null);
   const [title, setTitle] = useState(`Document ${documentId}`);
   console.log(documentId);
 
+  const saveDocument = () => {
+    socket.emit("save-document", quill.getContents());
+  };
+
   useEffect(() => {
     const s = io(process.env.REACT_APP_SERVER_URL);
     setSocket(s);
+    window.scrollTo(0, 0);
     return () => s.disconnect();
   }, []);
 
@@ -86,7 +90,7 @@ function TextEditor() {
     if (socket == null || quill == null) return;
 
     const interval = setInterval(() => {
-      socket.emit("save-document", quill.getContents());
+      saveDocument();
     }, SAVE_INTERVAL_MS);
 
     return () => clearInterval(interval);
@@ -117,7 +121,8 @@ function TextEditor() {
           onBlur={saveTitle}
           title="Rename"
         />
-        <Link to="/documents/" className="button-icon">
+
+        <Link to="/documents/" onClick={saveDocument} className="button-icon">
           <CloseTwoToneIcon />
         </Link>
       </div>
