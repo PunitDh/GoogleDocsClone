@@ -4,10 +4,29 @@ const mongoose = require("mongoose");
 const Document = require("./Document");
 const express = require("express");
 const app = express();
+const cors = require("cors");
+const http = require("http").Server(app);
+const port = process.env.PORT || 3010;
+const io = require("socket.io")(port, {
+  cors: {
+    origin: process.env.FRONTEND_URL,
+    methods: ["GET", "POST"],
+  },
+});
+
+app.use(cors());
+app.use(express.static(__dirname));
 
 console.log("Server starting...");
 
 const isProduction = process.env.NODE_ENV === "production";
+
+isProduction &&
+  app.get("/", (_, res) => {
+    res
+      .status(200)
+      .sendFile(path.join(__dirname, "client", "build", "index.html"));
+  });
 
 isProduction &&
   app.use(express.static(path.join(__dirname, "client", "build")));
@@ -25,13 +44,6 @@ mongoose
   .catch((err) => {
     console.log("Failed to connect to MongoDB database", err);
   });
-
-const io = require("socket.io")(process.env.PORT || 3001, {
-  cors: {
-    origin: process.env.FRONTEND_URL,
-    methods: ["GET", "POST"],
-  },
-});
 
 const defaultValue = "";
 
@@ -73,3 +85,5 @@ async function findOrCreateDocument(id) {
   if (document) return document;
   return await Document.create({ _id: id, data: defaultValue });
 }
+
+// http.listen(port, () => console.log("Server started on port", port));
