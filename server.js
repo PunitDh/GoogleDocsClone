@@ -1,8 +1,19 @@
 require("dotenv").config();
+const path = require("path");
 const mongoose = require("mongoose");
 const Document = require("./Document");
 
 console.log("Server starting...");
+
+const isProduction = process.env.NODE_ENV === "production";
+
+isProduction &&
+  app.use(express.static(path.join(__dirname, "client", "build")));
+
+isProduction &&
+  app.get("*", (_, res) => {
+    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+  });
 
 mongoose
   .connect(process.env.MONGODB_URL)
