@@ -14,6 +14,8 @@ const { authenticateUser } = require("./auth");
 const port = process.env.PORT || 3010;
 let io;
 
+console.log({ isProduction });
+
 isProduction && app.use(cors());
 isProduction && app.use(express.static(__dirname));
 
