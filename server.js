@@ -10,6 +10,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const JWT = require("jsonwebtoken");
 const http = isProduction && require("http").Server(app);
+const { authenticateUser } = require("./auth");
 const port = process.env.PORT || 3010;
 let io;
 
@@ -51,6 +52,30 @@ const defaultValue = "";
 io.on("connection", (socket) => {
   console.log("Web socket connected to socketID:", socket.id);
 
+  socket.on("verify-token", (token) => {
+    if (token) {
+      JWT.verify(
+        token.split(" ")[1],
+        process.env.JWT_SECRET,
+        async (err, decoded) => {
+          if (err) {
+            console.log("Failed to verify token", err);
+            socket.emit("invalid-token");
+          } else {
+            socket.user = decoded;
+            const userData = await User.findById(decoded.id);
+            const { user } = authenticateUser(userData);
+            if (userData) {
+              socket.emit("verified-token", user);
+            }
+          }
+        }
+      );
+    } else {
+      socket.emit("invalid-token");
+    }
+  });
+
   socket.on("get-documents", async (userId) => {
     const user = await User.findById(userId);
     if (user.superUser) {
@@ -59,10 +84,19 @@ io.on("connection", (socket) => {
     } else {
       const documents = await Document.find({
         userId: user._id,
+        public: false,
+      }).sort({
+        updatedAt: -1,
+      });
+
+      const publicDocuments = await Document.find({
         public: true,
       }).sort({
         updatedAt: -1,
       });
+
+      documents.push(...publicDocuments);
+
       socket.emit("load-documents", documents);
     }
   });
@@ -72,19 +106,8 @@ io.on("connection", (socket) => {
     if (userData) {
       if (bcrypt.compareSync(user.password, userData.password)) {
         console.log("Login success");
-
-        const currentUser = {
-          email: userData.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          id: userData._id,
-        };
-
-        const jwt = JWT.sign(currentUser, process.env.JWT_SECRET, {
-          expiresIn: "24h",
-        });
-
-        io.to(socket.id).emit("login-success", `Bearer ${jwt}`, currentUser);
+        const { jwt, user } = authenticateUser(userData);
+        io.to(socket.id).emit("login-success", jwt, user);
       } else {
         console.log("Wrong password");
         io.to(socket.id).emit("login-failure", "Wrong password");
@@ -96,7 +119,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("register-user", async (user) => {
-    console.log({ user });
     const newUser = await User.findOne({ email: user.email });
     if (newUser) {
       console.log("Email already exists");
@@ -112,8 +134,10 @@ io.on("connection", (socket) => {
         lastName: user.lastName,
       });
       try {
-        await newUser.save();
-        io.to(socket.id).emit("user-registered-success", newUser);
+        const userData = await newUser.save();
+        const { jwt, user } = authenticateUser(userData);
+
+        io.to(socket.id).emit("user-registered-success", jwt, user);
       } catch (err) {
         console.log("Failed to save user", err);
         io.to(socket.id).emit(
@@ -130,8 +154,8 @@ io.on("connection", (socket) => {
     socket.emit("document-deleted", documentId);
   });
 
-  socket.on("get-document", async (documentId, userId) => {
-    const document = await findOrCreateDocument(documentId, userId);
+  socket.on("get-document", async (documentId, title, userId) => {
+    const document = await findOrCreateDocument(documentId, title, userId);
     socket.join(documentId);
     socket.emit("load-document", document);
 
@@ -140,9 +164,13 @@ io.on("connection", (socket) => {
       socket.broadcast.to(documentId).emit("receive-changes", delta);
     });
 
-    socket.on("save-document", async (data) => {
+    socket.on("save-document", async (data, title) => {
+      console.log({ data, title });
       console.log("Saving Document", { userId });
-      const save = await Document.findByIdAndUpdate(documentId, { data });
+      const save = await Document.findByIdAndUpdate(documentId, {
+        data,
+        title,
+      });
       console.log("Document saved", save);
     });
 
@@ -150,18 +178,26 @@ io.on("connection", (socket) => {
       const save = await Document.findByIdAndUpdate(documentId, { title });
       console.log("Title saved", save);
     });
+
+    socket.on("change-privacy", async (public) => {
+      const save = await Document.findByIdAndUpdate(documentId, { public });
+      console.log("Privacy changed", save);
+    });
   });
 });
 
-async function findOrCreateDocument(documentId, userId) {
+async function findOrCreateDocument(documentId, title, userId) {
   if (documentId == null) return;
   const document = await Document.findById(documentId);
-  const user = await User.findById(userId);
-  if (document?.userId === user._id) return document;
+
+  if (document?.userId === userId) {
+    return document;
+  }
   return await Document.create({
     _id: documentId,
     data: defaultValue,
-    userId: user._id,
+    title,
+    userId,
   });
 }
 
