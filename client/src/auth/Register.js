@@ -40,7 +40,6 @@ function Register({ setToken, setCurrentUser, currentUser }) {
     socket.emit("register-user", user);
 
     socket.on("user-registered-success", (jwt, user) => {
-      console.log({ jwt, user });
       if (authenticateUser(jwt, setToken, user, setCurrentUser)) {
         setNotification({
           message: "Email address registered successfully",

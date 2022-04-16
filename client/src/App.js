@@ -29,7 +29,6 @@ function App() {
 
     s.emit("verify-token", token);
     s.on("verified-token", (currentUser) => {
-      console.log({ currentUser });
       setCurrentUser(currentUser);
     });
 

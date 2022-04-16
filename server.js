@@ -165,7 +165,6 @@ io.on("connection", (socket) => {
     });
 
     socket.on("save-document", async (data, title) => {
-      console.log({ data, title });
       console.log("Saving Document", { userId });
       const save = await Document.findByIdAndUpdate(documentId, {
         data,
