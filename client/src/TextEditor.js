@@ -19,7 +19,7 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ];
 
-function TextEditor({ socket, setSocket }) {
+function TextEditor({ socket, setSocket, currentUser }) {
   const { id: documentId } = useParams();
   const [quill, setQuill] = useState(null);
   const [title, setTitle] = useState(`Document ${documentId}`);
@@ -44,7 +44,7 @@ function TextEditor({ socket, setSocket }) {
       setTitle(document.title);
     });
 
-    socket.emit("get-document", documentId);
+    socket.emit("get-document", documentId, currentUser.id);
   }, [socket, quill, documentId]);
 
   useEffect(() => {

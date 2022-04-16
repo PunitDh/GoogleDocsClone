@@ -1,15 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuidV4 } from "uuid";
 import "./documents.css";
-import { io } from "socket.io-client";
 import ArticleTwoToneIcon from "@mui/icons-material/ArticleTwoTone";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
+import SettingsIcon from "@mui/icons-material/Settings";
+import LogoutIcon from "@mui/icons-material/Logout";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import Thumbnail from "./components/Thumbnail";
+import { io } from "socket.io-client";
+import { Link } from "react-router-dom";
 
-function Documents() {
+function Documents({ currentUser }) {
   const [documents, setDocuments] = useState([]);
   const [search, setSearch] = useState("");
   const [socket, setSocket] = useState(null);
+  const manageAccountMenuRef = useRef();
+  const container = useRef();
+  const [showManageAccountMenu, setShowManageAccountMenu] = useState(false);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -17,9 +24,26 @@ function Documents() {
   };
 
   useEffect(() => {
+    const checkOutsideClick = (e) => {
+      if (
+        showManageAccountMenu &&
+        !manageAccountMenuRef?.current?.contains(e.target)
+      ) {
+        setShowManageAccountMenu(false);
+      }
+    };
+    document.addEventListener("click", checkOutsideClick, false);
+
+    return () => {
+      document.removeEventListener("click", checkOutsideClick);
+    };
+  }, [showManageAccountMenu]);
+
+  useEffect(() => {
     const s = io(process.env.REACT_APP_SERVER_URL);
     setSocket(s);
-    s.emit("get-documents");
+
+    s.emit("get-documents", currentUser.id);
     s.on("load-documents", (documents) => {
       setDocuments(
         documents.map((document) => {
@@ -73,7 +97,7 @@ function Documents() {
   }, [search]);
 
   return (
-    <div className="container">
+    <div ref={container} className="container">
       <nav>
         <div className="icon-container">
           <ArticleTwoToneIcon
@@ -91,10 +115,44 @@ function Documents() {
             placeholder="Search"
           />
         </div>
-        <div></div>
+        <div>
+          <div
+            ref={manageAccountMenuRef}
+            className="manage-account-link"
+            onClick={() => setShowManageAccountMenu(true)}
+          >
+            {currentUser &&
+              `${currentUser.firstName
+                .at(0)
+                .toUpperCase()}${currentUser.lastName.at(0).toUpperCase()}`}
+
+            <div
+              className={`manage-account-menu ${
+                showManageAccountMenu ? "" : "hidden"
+              }`}
+            >
+              <Link
+                className="manage-account-menu-link"
+                title="Manage account"
+                to="#manage"
+              >
+                <SettingsIcon />
+                Manage account
+              </Link>
+              <Link
+                className="manage-account-menu-link"
+                title="Logout"
+                to="/logout"
+              >
+                <LogoutIcon />
+                Logout
+              </Link>
+            </div>
+          </div>
+        </div>
       </nav>
 
-      <main>
+      <main className="documents-main">
         <section>
           <h3>Start a new document</h3>
           <div className="content">
@@ -103,6 +161,13 @@ function Documents() {
               display="+"
               create
               title="Blank Document"
+              visible={true}
+            />
+            <Thumbnail
+              link={`/documents/${uuidV4()}`}
+              display={<GroupAddIcon className="public-document-icon" />}
+              create
+              title="Public Document"
               visible={true}
             />
           </div>

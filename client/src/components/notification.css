@@ -1,0 +1,67 @@
+.notification-container {
+  position: fixed;
+  top: 10%;
+  right: 10%;
+  width: 12rem;
+  height: 5%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+  opacity: 0.9;
+  transition: opacity 0.5s ease-in-out;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  font-family: sans-serif;
+  user-select: none;
+}
+
+.notification-container.success {
+  background-color: lightgreen;
+  color: darkgreen;
+  border: 1px solid darkgreen;
+}
+
+.notification-container.error {
+  background-color: lightpink;
+  color: darkred;
+  border: 1px solid darkred;
+}
+
+.notification-container.warning {
+  background-color: lightyellow;
+  color: darkgoldenrod;
+  border: 1px solid darkgoldenrod;
+}
+
+.notification-container.hide {
+  display: none;
+}
+
+.notification-container.show {
+  display: flex;
+}
+
+.notification-icon {
+  font-size: 0.1rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 600px) {
+  .notification-container {
+    left: 32vw;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .notification-container {
+    left: 27vw;
+  }
+}
+
+@media screen and (max-width: 300px) {
+  .notification-container {
+    left: 17vw;
+  }
+}

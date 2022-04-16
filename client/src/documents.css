@@ -19,6 +19,14 @@ nav {
   padding-left: 1rem;
 }
 
+.document-icon {
+  color: #02153d;
+  height: 2rem;
+  font-size: 2rem;
+  line-height: 2rem;
+  cursor: pointer;
+}
+
 .search-container {
   position: relative;
   width: 60%;
@@ -36,7 +44,7 @@ nav {
   color: #02153d;
 }
 
-main {
+.documents-main {
   width: 100%;
   height: 100%;
   display: flex;
@@ -44,13 +52,13 @@ main {
   flex-direction: column;
 }
 
-main section h3 {
+.documents-main section h3 {
   margin-bottom: 1rem;
   color: #444;
   margin-left: 4rem;
 }
 
-main section {
+.documents-main section {
   display: flex;
   flex-direction: column;
   width: 100vw;
@@ -65,12 +73,19 @@ main section {
   gap: 2rem;
 }
 
-.hidden {
-  display: none;
+.documents-main section:nth-child(2) {
+  background-color: white;
 }
 
-main section:nth-child(2) {
-  background-color: white;
+.search-input {
+  width: 80%;
+  height: 70%;
+  border: none;
+  background-color: #eee;
+  border-radius: 1rem;
+  font-size: large;
+  padding: 0.5rem;
+  padding-left: 2rem;
 }
 
 @media screen and (max-width: 600px) {
@@ -80,21 +95,19 @@ main section:nth-child(2) {
     justify-content: center;
   }
 
-  main section h3 {
+  .documents-main section h3 {
     text-align: center;
     margin-left: 0;
   }
 
-  nav {
-    justify-content: space-between;
+  .search-input {
+    width: 100%;
   }
+}
 
-  nav div:nth-child(3) {
-    display: none;
-  }
-
+@media screen and (max-width: 400px) {
   .search-container {
-    width: 80%;
+    margin-left: 10%;
   }
 }
 
@@ -107,6 +120,62 @@ main section:nth-child(2) {
   gap: 0.5rem;
   cursor: pointer;
   position: relative;
+}
+
+.manage-account-link {
+  border: 1px solid #3e5ea1;
+  border-radius: 50%;
+  background-color: #85a0d8;
+  width: 2rem;
+  height: 2rem;
+  margin-right: 2rem;
+  color: #02153d;
+  font-weight: bolder;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.manage-account-menu {
+  background-color: lightgray;
+  height: 10vh;
+  width: 12rem;
+  position: absolute;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0,0,0,0.1);
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.manage-account-menu-link {
+  color: gray;
+  text-decoration: none;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  align-items: center;
+  padding-left: 1rem;
+  font-size: 0.9rem;
+  line-height: 2;
+}
+
+.manage-account-menu-link:hover {
+  color: #02153d;
+  background-color: #888;
+}
+
+.manage-account-menu-link:active {
+  transform: translateY(0.2rem);
 }
 
 .document-container:hover .document-thumbnail-title-link {
@@ -202,7 +271,7 @@ main section:nth-child(2) {
   font-size: 0.85rem;
 }
 
-.delete-confirmation-dialog-button {
+.delete-confirmation-dialog-button, .form-link-button {
   width: 5rem;
   height: 2rem;
   border-radius: 0.5rem;
@@ -214,12 +283,12 @@ main section:nth-child(2) {
   box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.3);
 }
 
-.delete-confirmation-dialog-button:hover {
+.delete-confirmation-dialog-button:hover, .form-link-button:hover {
   outline: 1px solid black;
   background-color: #02153d;
 }
 
-.delete-confirmation-dialog-button:active {
+.delete-confirmation-dialog-button:active, .form-link-button:active {
   transform: translateY(2px);
 }
 
@@ -240,25 +309,16 @@ main section:nth-child(2) {
   border: 1px solid #02153d;
 }
 
-.search-input {
-  width: 80%;
-  height: 70%;
-  border: none;
-  background-color: #eee;
-  border-radius: 1rem;
-  font-size: large;
-  padding: 0.5rem;
-  padding-left: 2rem;
-}
-
-.document-icon {
-  color: #02153d;
-  height: 2rem;
-  font-size: 2rem;
-  line-height: 2rem;
-  cursor: pointer;
+.public-document-icon {
+  font-size: 5rem;
+  height: 3rem;
 }
 
 pre {
   font-family: sans-serif;
+}
+
+
+.hidden {
+  display: none !important;
 }
