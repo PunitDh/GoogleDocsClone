@@ -10,7 +10,7 @@ import Thumbnail from "./components/Thumbnail";
 import { io } from "socket.io-client";
 import { Link } from "react-router-dom";
 
-function Documents({ currentUser }) {
+function Documents({ currentUser, token }) {
   const [documents, setDocuments] = useState([]);
   const [search, setSearch] = useState("");
   const [socket, setSocket] = useState(null);
@@ -43,7 +43,7 @@ function Documents({ currentUser }) {
     const s = io(process.env.REACT_APP_SERVER_URL);
     setSocket(s);
 
-    s.emit("get-documents", currentUser.id);
+    s.emit("get-documents", currentUser.id, token);
     s.on("load-documents", (documents) => {
       setDocuments(
         documents.map((document) => {

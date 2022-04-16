@@ -70,6 +70,19 @@ body {
   color: black;
 }
 
+.privacy-change-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.3rem;
+  user-select: none;
+  color:rgba(0, 0, 0, 0.5);
+}
+
+.privacy-change-container * {
+  cursor: pointer;
+}
+
 @page {
   margin: 1in;
 }

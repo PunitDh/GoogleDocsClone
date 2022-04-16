@@ -7,7 +7,6 @@ import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 
 const SAVE_INTERVAL_MS = 10000;
 const TOOLBAR_OPTIONS = [
-  [{ title: "" }],
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
   [{ font: [] }],
   [{ list: "ordered" }, { list: "bullet" }],
@@ -19,13 +18,20 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ];
 
-function TextEditor({ socket, setSocket, currentUser }) {
+function TextEditor({ socket, setSocket, currentUser, token }) {
   const { id: documentId } = useParams();
   const [quill, setQuill] = useState(null);
   const [title, setTitle] = useState(`Document ${documentId}`);
+  const [publicDocument, setPublicDocument] = useState(false);
 
   const saveDocument = () => {
-    socket.emit("save-document", quill.getContents());
+    socket.emit("save-document", quill.getContents(), title);
+  };
+
+  const handlePrivacyChange = (e) => {
+    e.target.checked = !publicDocument;
+    setPublicDocument(!publicDocument);
+    socket.emit("change-privacy", e.target.checked);
   };
 
   useEffect(() => {
@@ -44,7 +50,7 @@ function TextEditor({ socket, setSocket, currentUser }) {
       setTitle(document.title);
     });
 
-    socket.emit("get-document", documentId, currentUser.id);
+    socket.emit("get-document", documentId, title, currentUser.id, token);
   }, [socket, quill, documentId]);
 
   useEffect(() => {
@@ -110,7 +116,7 @@ function TextEditor({ socket, setSocket, currentUser }) {
   }, []);
 
   return (
-    <div>
+    <div className="container">
       <div className="document-title-container">
         <input
           className="document-title"
@@ -120,7 +126,15 @@ function TextEditor({ socket, setSocket, currentUser }) {
           onBlur={saveTitle}
           title="Rename"
         />
-
+        <div className="privacy-change-container">
+          <input
+            type="checkbox"
+            id="public"
+            checked={publicDocument}
+            onChange={handlePrivacyChange}
+          />{" "}
+          <label htmlFor="public">Public?</label>
+        </div>
         <Link to="/documents/" onClick={saveDocument} className="button-icon">
           <CloseTwoToneIcon />
         </Link>

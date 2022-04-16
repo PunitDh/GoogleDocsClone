@@ -6,6 +6,7 @@ import { Link, Navigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useSocket, NotificationType } from "../hooks";
 import Notification from "../components/Notification";
+import { authenticateUser } from "./auth";
 
 function Login({ setToken, setCurrentUser, currentUser }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -25,10 +26,7 @@ function Login({ setToken, setCurrentUser, currentUser }) {
     socket.emit("login-user", user);
 
     socket.on("login-success", (jwt, currentUser) => {
-      if (jwt) {
-        localStorage.setItem(process.env.REACT_APP_TOKEN_NAME, jwt);
-        setToken(jwt);
-        setCurrentUser(currentUser);
+      if (authenticateUser(jwt, setToken, currentUser, setCurrentUser)) {
         setNotification({
           message: "Login successful",
           type: NotificationType.SUCCESS,

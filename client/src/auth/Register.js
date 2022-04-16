@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import "./auth.css";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Notification from "../components/Notification";
 import { NotificationType, useSocket } from "../hooks";
 import bcrypt from "bcryptjs";
+import { authenticateUser } from "./auth";
 
-function Register() {
+function Register({ setToken, setCurrentUser, currentUser }) {
   const [showPassword, setShowPassword] = useState(false);
   const [notification, setNotification] = useState(null);
   const socket = useSocket();
@@ -38,11 +39,14 @@ function Register() {
     const user = { firstName, lastName, email, password: hashedPassword };
     socket.emit("register-user", user);
 
-    socket.on("user-registered-success", () => {
-      setNotification({
-        message: "Email address registered successfully",
-        type: NotificationType.SUCCESS,
-      });
+    socket.on("user-registered-success", (jwt, user) => {
+      console.log({ jwt, user });
+      if (authenticateUser(jwt, setToken, user, setCurrentUser)) {
+        setNotification({
+          message: "Email address registered successfully",
+          type: NotificationType.SUCCESS,
+        });
+      }
     });
 
     socket.on("user-registered-failure", (error) => {
@@ -62,6 +66,7 @@ function Register() {
           setNotification={setNotification}
         />
       )}
+      {currentUser && <Navigate to="/" />}
       <div className="container">
         <Navbar />
 

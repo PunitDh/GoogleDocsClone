@@ -1,5 +1,6 @@
 import TextEditor from "./TextEditor";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
 import {
   BrowserRouter as Router,
   Routes,
@@ -22,6 +23,19 @@ function App() {
   );
   const signedIn = Boolean(token && currentUser);
 
+  useEffect(() => {
+    const s = io(process.env.REACT_APP_SERVER_URL);
+    setSocket(s);
+
+    s.emit("verify-token", token);
+    s.on("verified-token", (currentUser) => {
+      console.log({ currentUser });
+      setCurrentUser(currentUser);
+    });
+
+    return () => s.disconnect();
+  }, [token]);
+
   return (
     <Router>
       <Routes>
@@ -40,6 +54,7 @@ function App() {
                 socket={socket}
                 setSocket={setSocket}
                 currentUser={currentUser}
+                token={token}
               />
             ) : (
               <Navigate to="/login/" />
@@ -50,7 +65,11 @@ function App() {
           path="/documents/"
           element={
             signedIn ? (
-              <Documents socket={socket} currentUser={currentUser} />
+              <Documents
+                socket={socket}
+                currentUser={currentUser}
+                token={token}
+              />
             ) : (
               <Navigate to="/login/" />
             )
@@ -58,7 +77,17 @@ function App() {
         />
         <Route
           path="/register/"
-          element={signedIn ? <Navigate to="/documents" /> : <Register />}
+          element={
+            signedIn ? (
+              <Navigate to="/documents" />
+            ) : (
+              <Register
+                setToken={setToken}
+                setCurrentUser={setCurrentUser}
+                currentUser={currentUser}
+              />
+            )
+          }
         />
         <Route
           path="/login/"
