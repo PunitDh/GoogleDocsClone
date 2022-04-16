@@ -13,8 +13,6 @@ const http = isProduction && require("http").Server(app);
 const port = process.env.PORT || 3010;
 let io;
 
-console.log({ isProduction });
-
 isProduction && app.use(cors());
 isProduction && app.use(express.static(__dirname));
 
@@ -55,7 +53,6 @@ io.on("connection", (socket) => {
 
   socket.on("get-documents", async (userId) => {
     const user = await User.findById(userId);
-    console.log({ user });
     if (user.superUser) {
       const documents = await Document.find().sort({ updatedAt: -1 });
       socket.emit("load-documents", documents);
@@ -83,8 +80,6 @@ io.on("connection", (socket) => {
           id: userData._id,
         };
 
-        console.log({ currentUser });
-
         const jwt = JWT.sign(currentUser, process.env.JWT_SECRET, {
           expiresIn: "24h",
         });
@@ -104,7 +99,7 @@ io.on("connection", (socket) => {
     console.log({ user });
     const newUser = await User.findOne({ email: user.email });
     if (newUser) {
-      console.log("Already exists");
+      console.log("Email already exists");
       io.to(socket.id).emit(
         "user-registered-failure",
         "E-mail address already in use"
