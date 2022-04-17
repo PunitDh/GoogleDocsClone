@@ -126,29 +126,39 @@ function Account({ token, setToken, currentUser, setCurrentUser }) {
                 className="account-manage-container"
                 onSubmit={handleUpdateAccount}
               >
-                <div>First Name</div>
-                <input
-                  type="text"
-                  name="firstName"
-                  defaultValue={currentUser.firstName}
-                  required
-                />
-                <div>Last Name</div>
-                <input
-                  type="text"
-                  name="lastName"
-                  defaultValue={currentUser.lastName}
-                  required
-                />
-                <div>Email</div>
-                <input
-                  type="email"
-                  name="email"
-                  defaultValue={currentUser.email}
-                  required
-                />
-                <div></div>
-                <button>Update account</button>
+                <div className="account-manage-form-control">
+                  <label>First Name</label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    defaultValue={currentUser.firstName}
+                    required
+                  />
+                </div>
+
+                <div className="account-manage-form-control">
+                  <label>Last Name</label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    defaultValue={currentUser.lastName}
+                    required
+                  />
+                </div>
+
+                <div className="account-manage-form-control">
+                  <label>Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    defaultValue={currentUser.email}
+                    required
+                  />
+                </div>
+                <div className="account-manage-form-control">
+                  <label></label>
+                  <button className="form-button">Update account</button>
+                </div>
               </form>
             </section>
 
@@ -158,27 +168,41 @@ function Account({ token, setToken, currentUser, setCurrentUser }) {
                 className="account-manage-container"
                 onSubmit={handleChangePassword}
               >
-                <div>Current Password</div>
-                <input type="password" name="oldPassword" />
-                <div>New Password</div>
-                <input type="password" name="newPassword" />
-                <div>Confirm New Password</div>
-                <input type="password" name="newPasswordConfirmation" />
-                <div></div>
-                <button>Change password</button>
+                <div className="account-manage-form-control">
+                  <label>Current Password</label>
+                  <input type="password" name="oldPassword" />
+                </div>
+
+                <div className="account-manage-form-control">
+                  <label>New Password</label>
+                  <input type="password" name="newPassword" />
+                </div>
+
+                <div className="account-manage-form-control">
+                  <label>Confirm New Password</label>
+                  <input type="password" name="newPasswordConfirmation" />
+                </div>
+                <div className="account-manage-form-control">
+                  <label></label>
+                  <button type="button" className="form-button">
+                    Change password
+                  </button>
+                </div>
               </form>
             </section>
 
             <section>
               <h3>Delete account permanently</h3>
               <div className="account-manage-container">
-                <div>Delete permanently?</div>
-                <button
-                  className="delete-account-button"
-                  onClick={handleDeleteAccount}
-                >
-                  Delete
-                </button>
+                <div className="account-manage-form-control">
+                  <label>Delete permanently?</label>
+                  <button
+                    className="form-button delete-account-button"
+                    onClick={handleDeleteAccount}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </section>
           </main>

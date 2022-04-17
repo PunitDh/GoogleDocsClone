@@ -1,18 +1,31 @@
 .account-manage-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 1rem;
-  margin: auto;
   margin-bottom: 2rem;
-  align-content: center;
+  justify-content: center;
   align-items: center;
-  justify-items: flex-end;
+  flex-direction: column;
 }
 
-.account-manage-container button {
-  width: 100%;
+.account-manage-container .form-button {
+  width: 10rem;
+  align-self: flex-end;
 }
 
 .account-manage-container .delete-account-button {
   background-color: #e74c3c;
+}
+
+.account-manage-form-control {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+}
+
+.account-manage-form-control label {
+  text-align: right;
+  word-wrap:break-word;
+  width: 30%;
+  margin-right: 1rem;
 }
