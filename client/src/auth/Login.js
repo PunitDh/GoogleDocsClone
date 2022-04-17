@@ -25,6 +25,14 @@ function Login({ setToken, setCurrentUser, currentUser }) {
 
     socket.emit("login-user", user);
 
+    if (socket.disconnected) {
+      setNotification({
+        message: "Failed to connect to server",
+        type: NotificationType.ERROR,
+      });
+      return;
+    }
+
     socket.on("login-success", (jwt, user) => {
       if (authenticateUser(jwt, setToken, user, setCurrentUser)) {
         setNotification({

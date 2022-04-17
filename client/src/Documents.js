@@ -7,12 +7,15 @@ import { io } from "socket.io-client";
 import Navbar from "./components/Navbar";
 import CircularProgress from "@mui/material/CircularProgress";
 import JWTDecode from "jwt-decode";
+import Notification from "./components/Notification";
+import { NotificationType } from "./hooks";
 
 function Documents({ token }) {
   const [documents, setDocuments] = useState([]);
   const [search, setSearch] = useState("");
   const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState(null);
 
   const currentUser = JWTDecode(token);
 
@@ -26,6 +29,7 @@ function Documents({ token }) {
     setSocket(s);
 
     s.emit("get-documents", currentUser.id, token);
+
     s.on("load-documents", (documents) => {
       setDocuments(
         documents.map((document) => {
@@ -80,57 +84,62 @@ function Documents({ token }) {
   }, [search]);
 
   return (
-    <div className="container">
-      <Navbar
-        token={token}
-        search={search}
-        handleSearch={handleSearch}
-        currentUser={currentUser}
-      />
-      {loading ? (
-        <div className="loading-bar">
-          <CircularProgress />
-        </div>
-      ) : (
-        <main className="documents-main">
-          <section>
-            <h3>Start a new document</h3>
-            <div className="content">
-              <Thumbnail
-                link={`/documents/${uuidV4()}`}
-                display="+"
-                create
-                title="Blank Document"
-                visible={true}
-              />
-              <Thumbnail
-                link={`/documents/${uuidV4()}?public=true`}
-                display={<GroupAddIcon className="public-document-icon" />}
-                create
-                title="Public Document"
-                visible={true}
-              />
-            </div>
-          </section>
-          <section>
-            <h3>Recent documents</h3>
-            <div className="content">
-              {documents.map((document) => (
-                <Thumbnail
-                  key={document._id}
-                  id={document._id}
-                  link={`/documents/${document._id}`}
-                  display={document.data}
-                  title={document.title}
-                  visible={document.visible}
-                  socket={socket}
-                />
-              ))}
-            </div>
-          </section>
-        </main>
+    <>
+      {notification && (
+        <Notification {...notification} setNotification={setNotification} />
       )}
-    </div>
+      <div className="container">
+        <Navbar
+          token={token}
+          search={search}
+          handleSearch={handleSearch}
+          currentUser={currentUser}
+        />
+        {loading ? (
+          <div className="loading-bar">
+            <CircularProgress />
+          </div>
+        ) : (
+          <main className="documents-main">
+            <section>
+              <h3>Start a new document</h3>
+              <div className="content">
+                <Thumbnail
+                  link={`/documents/${uuidV4()}`}
+                  display="+"
+                  create
+                  title="Blank Document"
+                  visible={true}
+                />
+                <Thumbnail
+                  link={`/documents/${uuidV4()}?public=true`}
+                  display={<GroupAddIcon style={{ fontSize: "2.5rem" }} />}
+                  create
+                  title="Public Document"
+                  visible={true}
+                />
+              </div>
+            </section>
+            <section>
+              <h3>Recent documents</h3>
+              <div className="content">
+                {documents.map((document) => (
+                  <Thumbnail
+                    key={document._id}
+                    id={document._id}
+                    link={`/documents/${document._id}`}
+                    display={document.data}
+                    title={document.title}
+                    visible={document.visible}
+                    socket={socket}
+                  />
+                ))}
+              </div>
+            </section>
+          </main>
+        )}
+      </div>
+    </>
   );
 }
 

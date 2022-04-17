@@ -39,6 +39,14 @@ function Register({ setToken, setCurrentUser, currentUser }) {
     const user = { firstName, lastName, email, password: hashedPassword };
     socket.emit("register-user", user);
 
+    if (socket.disconnected) {
+      setNotification({
+        message: "Failed to connect to server",
+        type: NotificationType.ERROR,
+      });
+      return;
+    }
+
     socket.on("user-registered-success", (jwt, user) => {
       if (authenticateUser(jwt, setToken, user, setCurrentUser)) {
         setNotification({

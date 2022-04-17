@@ -61,7 +61,6 @@ function TextEditor({ socket, setSocket, token }) {
     if (socket == null || quill == null) return;
 
     socket.once("load-document", (document) => {
-      console.log("Calling this");
       quill.setContents(document?.data);
       quill.enable(true);
       setTitle(document?.title);
