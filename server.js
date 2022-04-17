@@ -80,6 +80,7 @@ io.on("connection", (socket) => {
 
   socket.on("get-documents", async (userId) => {
     const user = await User.findById(userId);
+    if (!user) return;
     if (user.superUser) {
       const documents = await Document.find().sort({ updatedAt: -1 });
       socket.emit("load-documents", documents);
