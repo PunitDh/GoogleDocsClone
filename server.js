@@ -156,8 +156,13 @@ io.on("connection", (socket) => {
     socket.emit("document-deleted", documentId);
   });
 
-  socket.on("get-document", async (documentId, title, userId) => {
-    const document = await findOrCreateDocument(documentId, title, userId);
+  socket.on("get-document", async (documentId, title, public, userId) => {
+    const document = await findOrCreateDocument(
+      documentId,
+      title,
+      public,
+      userId
+    );
     socket.join(documentId);
     socket.emit("load-document", document);
 
@@ -167,7 +172,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("save-document", async (data, title) => {
-      console.log("Saving Document", { userId });
+      console.log("Saving Document", { userId, documentId });
       const save = await Document.findByIdAndUpdate(documentId, {
         data,
         title,
@@ -187,18 +192,23 @@ io.on("connection", (socket) => {
   });
 });
 
-async function findOrCreateDocument(documentId, title, userId) {
+async function findOrCreateDocument(documentId, title, public, userId) {
   if (documentId == null) return;
   const document = await Document.findById(documentId);
+  const user = await User.findById(userId);
 
-  if (document?.userId === userId) {
-    return document;
+  if (document) {
+    if (document.userId === userId || user.superUser || document.public) {
+      return document;
+    }
   }
+
   return await Document.create({
     _id: documentId,
     data: defaultValue,
     title,
     userId,
+    public: Boolean(public),
   });
 }
 
