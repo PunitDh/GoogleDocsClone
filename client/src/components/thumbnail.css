@@ -1,0 +1,35 @@
+.thumbnail-container {
+  width: 8.5rem;
+  height: 15rem;
+  color: #666;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  cursor: pointer;
+  position: relative;
+}
+
+.thumbnail-container:hover .thumbnail-title-link {
+  color: #02153d;
+}
+
+.thumbnail-title-link {
+  text-decoration: none;
+  color: #666;
+  font-size: 0.7rem;
+  margin-left: 0.4rem;
+}
+
+.thumbnail-content {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-left: 0.6rem;
+  padding-top: 0.2rem;
+  font-size: 0.4rem;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.thumbnail-info {
+  margin-bottom: 0.3rem;
+}

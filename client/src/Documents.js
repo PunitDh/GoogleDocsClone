@@ -33,8 +33,8 @@ function Documents({ token }) {
     s.on("load-documents", (documents) => {
       setDocuments(
         documents.map((document) => {
-          const title = document.title || `Document ${document._id}`;
-          const maxLength = 23;
+          const title = document.title || document._id;
+          const maxLength = 18;
 
           return {
             ...document,
@@ -130,6 +130,7 @@ function Documents({ token }) {
                     link={`/documents/${document._id}`}
                     display={document.data}
                     title={document.title}
+                    author={document.author}
                     visible={document.visible}
                     socket={socket}
                   />

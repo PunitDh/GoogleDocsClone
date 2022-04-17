@@ -2,9 +2,19 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import "../documents.css";
+import "./thumbnail.css";
 import DeleteConfirmationDialog from "./Dialog";
 
-function Thumbnail({ link, display, title, create, visible, id, socket }) {
+function Thumbnail({
+  link,
+  display,
+  title,
+  author,
+  create,
+  visible,
+  id,
+  socket,
+}) {
   const [showModal, setShowModal] = useState(false);
 
   const handleDelete = () => {
@@ -16,8 +26,8 @@ function Thumbnail({ link, display, title, create, visible, id, socket }) {
 
   return (
     <>
-      <div className={visible ? "document-container" : "hidden"}>
-        <Link to={link} className={create ? "document" : "document-content"}>
+      <div className={visible ? "thumbnail-container" : "hidden"}>
+        <Link to={link} className={create ? "document" : "thumbnail-content"}>
           <pre>{display}</pre>
         </Link>
         {!create && (
@@ -26,8 +36,15 @@ function Thumbnail({ link, display, title, create, visible, id, socket }) {
             onClick={() => setShowModal(true)}
           />
         )}
-        <Link to={link} className="document-thumbnail-title-link">
-          {title}
+        <Link to={link} className="thumbnail-title-link">
+          <div className="thumbnail-info">
+            {!create && <strong>Title:</strong>} <span>{title}</span>
+          </div>
+          {author && (
+            <div className="thumbnail-info">
+              <strong>Author:</strong> {author}
+            </div>
+          )}
         </Link>
       </div>
       {!create && (

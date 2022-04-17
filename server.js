@@ -97,7 +97,24 @@ io.on("connection", (socket) => {
         updatedAt: -1,
       });
 
-      documents.push(...publicDocuments);
+      const users = publicDocuments.map((document) => document.userId);
+      const usersData = await User.find({
+        _id: { $in: users },
+      });
+
+      console.log({ usersData });
+
+      const publicDocumentsWithUsers = publicDocuments.map((document) => {
+        const user = usersData.find(
+          (user) => user._id.toString() === document.userId.toString()
+        );
+        return {
+          ...document.toObject(),
+          author: user.firstName + " " + user.lastName,
+        };
+      });
+
+      documents.push(...publicDocumentsWithUsers);
 
       socket.emit("load-documents", documents);
     }

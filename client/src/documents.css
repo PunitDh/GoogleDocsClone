@@ -112,17 +112,6 @@ nav {
   }
 }
 
-.document-container {
-  width: 8.5rem;
-  height: 14rem;
-  color: #666;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  cursor: pointer;
-  position: relative;
-}
-
 .manage-account-link {
   border: 1px solid #3e5ea1;
   border-radius: 50%;
@@ -180,11 +169,7 @@ nav {
   transform: translateY(0.2rem);
 }
 
-.document-container:hover .document-thumbnail-title-link {
-  color: #02153d;
-}
-
-.document, .document-content {
+.document, .thumbnail-content {
   width: 8.5rem;
   height: 11rem;
   border-radius: 0.5rem;
@@ -196,21 +181,6 @@ nav {
   font-size: 5rem;
   border: 1px solid rgba(0,0,0,0.3);
   text-decoration: none;
-}
-
-.document-content {
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding-left: 0.6rem;
-  padding-top: 0.2rem;
-  font-size: 0.4rem;
-  overflow-x: hidden;
-  overflow-y: hidden;
-}
-
-.document-thumbnail-title-link {
-  text-decoration: none;
-  color: #666;
 }
 
 .delete-confirmation-dialog {
@@ -303,7 +273,7 @@ nav {
 
 .delete-icon {
   position: absolute;
-  bottom: 3.5rem;
+  bottom: 4.5rem;
   right: 0.5rem;
   cursor: pointer;
   color: gray;
@@ -313,7 +283,7 @@ nav {
   color: #02153d;
 }
 
-.document:hover, .document-content:hover {
+.document:hover, .thumbnail-content:hover {
   color: #02153d;
   border: 1px solid #02153d;
 }

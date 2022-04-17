@@ -8,6 +8,7 @@ const Document = new Schema(
     visible: { type: Boolean, required: true, default: true },
     userId: { type: String, required: true },
     public: { type: Boolean, required: true, default: false },
+    author: { type: String, required: false },
   },
   { timestamps: true }
 );
