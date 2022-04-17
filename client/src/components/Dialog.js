@@ -1,7 +1,7 @@
 import React from "react";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
-function DeleteConfirmationModal({
+function DeleteConfirmationDialog({
   title,
   setShowModal,
   showModal,
@@ -36,4 +36,4 @@ function DeleteConfirmationModal({
   );
 }
 
-export default DeleteConfirmationModal;
+export default DeleteConfirmationDialog;

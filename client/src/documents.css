@@ -153,6 +153,7 @@ nav {
   justify-content: center;
   z-index: 100;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .manage-account-menu-link {
@@ -225,6 +226,7 @@ nav {
   box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
   border: 1px solid rgba(0,0,0,0.1);
   user-select: none;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .delete-confirmation-dialog-container {

@@ -4,6 +4,8 @@ import "quill/dist/quill.snow.css";
 import { io } from "socket.io-client";
 import { Link, useParams } from "react-router-dom";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
+import { useQuery } from "./hooks";
+import { CircularProgress } from "@mui/material";
 
 const SAVE_INTERVAL_MS = 10000;
 const TOOLBAR_OPTIONS = [
@@ -20,12 +22,16 @@ const TOOLBAR_OPTIONS = [
 
 function TextEditor({ socket, setSocket, currentUser, token }) {
   const { id: documentId } = useParams();
+  const query = useQuery();
   const [quill, setQuill] = useState(null);
   const [title, setTitle] = useState(`Document ${documentId}`);
-  const [publicDocument, setPublicDocument] = useState(false);
+  const [publicDocument, setPublicDocument] = useState(
+    query.get("public") === "true"
+  );
+  const [loading, setLoading] = useState(true);
 
   const saveDocument = () => {
-    socket.emit("save-document", quill.getContents(), title);
+    socket.emit("save-document", quill.getContents(), title, documentId);
   };
 
   const handlePrivacyChange = (e) => {
@@ -45,13 +51,22 @@ function TextEditor({ socket, setSocket, currentUser, token }) {
     if (socket == null || quill == null) return;
 
     socket.once("load-document", (document) => {
-      quill.setContents(document.data);
+      quill.setContents(document?.data);
       quill.enable(true);
-      setTitle(document.title);
+      setTitle(document?.title);
+      setPublicDocument(document?.public);
+      setLoading(false);
     });
 
-    socket.emit("get-document", documentId, title, currentUser.id, token);
-  }, [socket, quill, documentId]);
+    socket.emit(
+      "get-document",
+      documentId,
+      title,
+      publicDocument,
+      currentUser.id,
+      token
+    );
+  }, [socket, quill, documentId, title, publicDocument]);
 
   useEffect(() => {
     if (socket == null || quill == null) return;
@@ -117,30 +132,39 @@ function TextEditor({ socket, setSocket, currentUser, token }) {
 
   return (
     <div className="container">
-      <div className="document-title-container">
-        <input
-          className="document-title"
-          type="text"
-          value={title}
-          onChange={(e) => handleTitleChange(e)}
-          onBlur={saveTitle}
-          title="Rename"
-        />
-        <div className="privacy-change-container">
-          <input
-            type="checkbox"
-            id="public"
-            checked={publicDocument}
-            onChange={handlePrivacyChange}
-          />{" "}
-          <label htmlFor="public">Public?</label>
+      {loading ? (
+        <div className="loading-bar">
+          <CircularProgress />
         </div>
-        <Link to="/documents/" onClick={saveDocument} className="button-icon">
-          <CloseTwoToneIcon />
-        </Link>
-      </div>
+      ) : (
+        <div className="document-title-container">
+          <input
+            className="document-title"
+            type="text"
+            value={title}
+            onChange={(e) => handleTitleChange(e)}
+            onBlur={saveTitle}
+            title="Rename"
+          />
+          <div className="privacy-change-container">
+            <input
+              type="checkbox"
+              id="public"
+              checked={publicDocument}
+              onChange={handlePrivacyChange}
+            />{" "}
+            <label htmlFor="public">Public?</label>
+          </div>
+          <Link to="/documents/" onClick={saveDocument} className="button-icon">
+            <CloseTwoToneIcon />
+          </Link>
+        </div>
+      )}
 
-      <div className="container" ref={wrapperRef}></div>
+      <div
+        className={`container ${loading && "container-hidden"}`}
+        ref={wrapperRef}
+      ></div>
     </div>
   );
 }

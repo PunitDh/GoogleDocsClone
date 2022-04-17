@@ -1,43 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuidV4 } from "uuid";
 import "./documents.css";
-import ArticleTwoToneIcon from "@mui/icons-material/ArticleTwoTone";
-import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
-import SettingsIcon from "@mui/icons-material/Settings";
-import LogoutIcon from "@mui/icons-material/Logout";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import Thumbnail from "./components/Thumbnail";
 import { io } from "socket.io-client";
-import { Link } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function Documents({ currentUser, token }) {
   const [documents, setDocuments] = useState([]);
   const [search, setSearch] = useState("");
   const [socket, setSocket] = useState(null);
-  const manageAccountMenuRef = useRef();
-  const container = useRef();
-  const [showManageAccountMenu, setShowManageAccountMenu] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const handleSearch = (e) => {
     e.preventDefault();
     setSearch(e.target.value);
   };
-
-  useEffect(() => {
-    const checkOutsideClick = (e) => {
-      if (
-        showManageAccountMenu &&
-        !manageAccountMenuRef?.current?.contains(e.target)
-      ) {
-        setShowManageAccountMenu(false);
-      }
-    };
-    document.addEventListener("click", checkOutsideClick, false);
-
-    return () => {
-      document.removeEventListener("click", checkOutsideClick);
-    };
-  }, [showManageAccountMenu]);
 
   useEffect(() => {
     const s = io(process.env.REACT_APP_SERVER_URL);
@@ -64,6 +43,7 @@ function Documents({ currentUser, token }) {
           };
         })
       );
+      setLoading(false);
     });
 
     return () => s.disconnect();
@@ -97,98 +77,56 @@ function Documents({ currentUser, token }) {
   }, [search]);
 
   return (
-    <div ref={container} className="container">
-      <nav>
-        <div className="icon-container">
-          <ArticleTwoToneIcon
-            className="document-icon"
-            style={{ fontSize: "2.5rem" }}
-          />
+    <div className="container">
+      <Navbar
+        token={token}
+        search={search}
+        handleSearch={handleSearch}
+        currentUser={currentUser}
+      />
+      {loading ? (
+        <div className="loading-bar">
+          <CircularProgress />
         </div>
-        <div className="search-container">
-          <SearchTwoToneIcon className="search-icon" />
-          <input
-            className="search-input"
-            type="search"
-            value={search}
-            onChange={handleSearch}
-            placeholder="Search"
-          />
-        </div>
-        <div>
-          <div
-            ref={manageAccountMenuRef}
-            className="manage-account-link"
-            onClick={() => setShowManageAccountMenu(true)}
-          >
-            {currentUser &&
-              `${currentUser.firstName
-                .at(0)
-                .toUpperCase()}${currentUser.lastName.at(0).toUpperCase()}`}
-
-            <div
-              className={`manage-account-menu ${
-                showManageAccountMenu ? "" : "hidden"
-              }`}
-            >
-              <Link
-                className="manage-account-menu-link"
-                title="Manage account"
-                to="#manage"
-              >
-                <SettingsIcon />
-                Manage account
-              </Link>
-              <Link
-                className="manage-account-menu-link"
-                title="Logout"
-                to="/logout"
-              >
-                <LogoutIcon />
-                Logout
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <main className="documents-main">
-        <section>
-          <h3>Start a new document</h3>
-          <div className="content">
-            <Thumbnail
-              link={`/documents/${uuidV4()}`}
-              display="+"
-              create
-              title="Blank Document"
-              visible={true}
-            />
-            <Thumbnail
-              link={`/documents/${uuidV4()}`}
-              display={<GroupAddIcon className="public-document-icon" />}
-              create
-              title="Public Document"
-              visible={true}
-            />
-          </div>
-        </section>
-        <section>
-          <h3>Recent documents</h3>
-          <div className="content">
-            {documents.map((document) => (
+      ) : (
+        <main className="documents-main">
+          <section>
+            <h3>Start a new document</h3>
+            <div className="content">
               <Thumbnail
-                key={document._id}
-                id={document._id}
-                link={`/documents/${document._id}`}
-                display={document.data}
-                title={document.title}
-                visible={document.visible}
-                socket={socket}
+                link={`/documents/${uuidV4()}`}
+                display="+"
+                create
+                title="Blank Document"
+                visible={true}
               />
-            ))}
-          </div>
-        </section>
-      </main>
+              <Thumbnail
+                link={`/documents/${uuidV4()}?public=true`}
+                display={<GroupAddIcon className="public-document-icon" />}
+                create
+                title="Public Document"
+                visible={true}
+              />
+            </div>
+          </section>
+          <section>
+            <h3>Recent documents</h3>
+            <div className="content">
+              {documents.map((document) => (
+                <Thumbnail
+                  key={document._id}
+                  id={document._id}
+                  link={`/documents/${document._id}`}
+                  display={document.data}
+                  title={document.title}
+                  visible={document.visible}
+                  socket={socket}
+                />
+              ))}
+            </div>
+          </section>
+        </main>
+      )}
     </div>
   );
 }

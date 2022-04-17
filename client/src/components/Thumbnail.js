@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import "../documents.css";
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import DeleteConfirmationDialog from "./Dialog";
 
 function Thumbnail({ link, display, title, create, visible, id, socket }) {
   const [showModal, setShowModal] = useState(false);
@@ -31,7 +31,7 @@ function Thumbnail({ link, display, title, create, visible, id, socket }) {
         </Link>
       </div>
       {!create && (
-        <DeleteConfirmationModal
+        <DeleteConfirmationDialog
           title={title}
           setShowModal={setShowModal}
           handleDelete={handleDelete}

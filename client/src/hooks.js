@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
+import { useLocation } from "react-router-dom";
 
 export const useNotification = ({ message, type }) => {
   const [notification, setNotification] = useState(null);
@@ -12,6 +13,8 @@ export const useNotification = ({ message, type }) => {
 
   return { notification, setNotification };
 };
+
+export const useQuery = () => new URLSearchParams(useLocation().search);
 
 export const useSocket = () => {
   const [socket, setSocket] = useState(null);
