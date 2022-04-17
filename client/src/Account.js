@@ -180,7 +180,7 @@ function Account({ token, setToken, setCurrentUser }) {
 
                 <div className="account-manage-form-control">
                   <label htmlFor="newPassword">New Password</label>
-                  <input id="oldPassword" type="password" name="newPassword" />
+                  <input id="newPassword" type="password" name="newPassword" />
                 </div>
 
                 <div className="account-manage-form-control">
