@@ -139,6 +139,29 @@ io.on("connection", (socket) => {
     );
   });
 
+  socket.on("delete-permanently", async (token) => {
+    JWT.verify(
+      token.split(" ")[1],
+      process.env.JWT_SECRET,
+      async (err, decoded) => {
+        if (err) {
+          console.log("Failed to verify token", err);
+          io.to(socket.id).emit(
+            "delete-permanently-failure",
+            "User is invalid"
+          );
+        } else {
+          const userId = decoded.id;
+          const deletedDocuments = await Document.deleteMany({ userId });
+          const deletedUser = await User.findByIdAndDelete(userId);
+          if (deletedUser) {
+            io.emit("user-deleted", deletedUser, deletedDocuments);
+          }
+        }
+      }
+    );
+  });
+
   socket.on("login-user", async (user) => {
     const userData = await User.findOne({ email: user.email });
     if (userData) {

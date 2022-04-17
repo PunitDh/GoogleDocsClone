@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import "../documents.css";
 import "./thumbnail.css";
-import DeleteConfirmationDialog from "./Dialog";
+import Dialog from "./Dialog";
 
 function Thumbnail({
   link,
@@ -48,11 +48,12 @@ function Thumbnail({
         </Link>
       </div>
       {!create && (
-        <DeleteConfirmationDialog
-          title={title}
+        <Dialog
+          confirmationTitle="Confirm Delete"
+          confirmationMessage={`Are you sure you want to delete ${title}?`}
           setShowModal={setShowModal}
-          handleDelete={handleDelete}
           showModal={showModal}
+          handleDelete={handleDelete}
         />
       )}
     </>

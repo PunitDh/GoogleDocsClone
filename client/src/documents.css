@@ -198,6 +198,7 @@ nav {
   border: 1px solid rgba(0,0,0,0.1);
   user-select: none;
   animation: fadeIn 0.3s ease-in-out;
+  font-family: sans-serif;
 }
 
 .delete-confirmation-dialog-container {

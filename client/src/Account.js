@@ -8,11 +8,13 @@ import Notification from "./components/Notification";
 import { NotificationType } from "./hooks";
 import bcrypt from "bcryptjs";
 import JWTDecode from "jwt-decode";
+import Dialog from "./components/Dialog";
 
 function Account({ token, setToken, setCurrentUser }) {
   const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const currentUser = JWTDecode(token);
 
   useEffect(() => {
@@ -103,6 +105,8 @@ function Account({ token, setToken, setCurrentUser }) {
 
   const handleDeleteAccount = (e) => {
     e.preventDefault();
+    socket.emit("delete-permanently", token);
+    socket.on("user-deleted", () => {});
   };
 
   return (
@@ -114,6 +118,16 @@ function Account({ token, setToken, setCurrentUser }) {
           setNotification={setNotification}
         />
       )}
+      {
+        <Dialog
+          confirmationTitle="Confirm Delete"
+          confirmationMessage="Are you sure you want to delete your account? All your documents will
+          be permanently deleted? This operation is not reversible."
+          setShowModal={setShowModal}
+          showModal={showModal}
+          handleDelete={handleDeleteAccount}
+        />
+      }
       <div className="container">
         <Navbar token={token} currentUser={currentUser} />
         {loading ? (
@@ -207,7 +221,7 @@ function Account({ token, setToken, setCurrentUser }) {
                   <label>Delete permanently?</label>
                   <button
                     className="form-button delete-account-button"
-                    onClick={handleDeleteAccount}
+                    onClick={() => setShowModal(true)}
                   >
                     Delete
                   </button>
