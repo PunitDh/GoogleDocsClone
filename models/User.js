@@ -23,6 +23,11 @@ const User = new Schema(
       required: true,
       default: false,
     },
+    confirmed: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   { timestamps: true }
 );

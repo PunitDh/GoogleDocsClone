@@ -12,6 +12,7 @@ import Login from "./auth/Login";
 import Register from "./auth/Register";
 import JWTDecode from "jwt-decode";
 import Logout from "./auth/Logout";
+import Account from "./Account";
 
 function App() {
   const [socket, setSocket] = useState();
@@ -99,6 +100,21 @@ function App() {
                 setCurrentUser={setCurrentUser}
                 currentUser={currentUser}
               />
+            )
+          }
+        />
+        <Route
+          path="/account/"
+          element={
+            signedIn ? (
+              <Account
+                token={token}
+                setToken={setToken}
+                currentUser={currentUser}
+                setCurrentUser={setCurrentUser}
+              />
+            ) : (
+              <Navigate to="/login/" />
             )
           }
         />

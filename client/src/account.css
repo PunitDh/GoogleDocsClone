@@ -1,0 +1,18 @@
+.account-manage-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: auto;
+  margin-bottom: 2rem;
+  align-content: center;
+  align-items: center;
+  justify-items: flex-end;
+}
+
+.account-manage-container button {
+  width: 100%;
+}
+
+.account-manage-container .delete-account-button {
+  background-color: #e74c3c;
+}

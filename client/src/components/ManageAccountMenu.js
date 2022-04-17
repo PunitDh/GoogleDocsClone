@@ -9,7 +9,7 @@ function ManageAccountMenu() {
       <Link
         className="manage-account-menu-link"
         title="Manage account"
-        to="#manage"
+        to="/account"
       >
         <SettingsIcon />
         Manage account

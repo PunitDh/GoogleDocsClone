@@ -62,19 +62,19 @@ io.on("connection", (socket) => {
         async (err, decoded) => {
           if (err) {
             console.log("Failed to verify token", err);
-            socket.emit("invalid-token");
+            io.to(socket.id).emit("invalid-token");
           } else {
             socket.user = decoded;
             const userData = await User.findById(decoded.id);
             const { user } = authenticateUser(userData);
             if (userData) {
-              socket.emit("verified-token", user);
+              io.to(socket.id).emit("verified-token", user);
             }
           }
         }
       );
     } else {
-      socket.emit("invalid-token");
+      io.to(socket.id).emit("invalid-token");
     }
   });
 
@@ -103,9 +103,52 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("change-password", async (password, token) => {
+    JWT.verify(
+      token.split(" ")[1],
+      process.env.JWT_SECRET,
+      async (err, decoded) => {
+        if (err) {
+          console.log("Failed to verify token", err);
+          io.to(socket.id).emit("change-password-failure", "User is invalid");
+        } else {
+          const user = await User.findById(decoded.id);
+          if (user) {
+            console.log({
+              oldPassword: password.oldPassword,
+              currentPassword: user.password,
+            });
+            if (bcrypt.compareSync(password.oldPassword, user.password)) {
+              try {
+                user.password = password.newPassword;
+                await user.save();
+                io.to(socket.id).emit("change-password-success");
+              } catch (err) {
+                console.log("Failed to save user", err);
+                io.to(socket.id).emit(
+                  "change-password-failure",
+                  "Failed to update password"
+                );
+              }
+            } else {
+              io.to(socket.id).emit(
+                "change-password-failure",
+                "Wrong password"
+              );
+            }
+          }
+        }
+      }
+    );
+  });
+
   socket.on("login-user", async (user) => {
     const userData = await User.findOne({ email: user.email });
     if (userData) {
+      console.log({
+        userPassword: user.password,
+        userDataPassword: userData.password,
+      });
       if (bcrypt.compareSync(user.password, userData.password)) {
         console.log("Login success");
         const { jwt, user } = authenticateUser(userData);
@@ -117,6 +160,24 @@ io.on("connection", (socket) => {
     } else {
       console.log("User not found");
       io.to(socket.id).emit("login-failure", "User not found");
+    }
+  });
+
+  socket.on("update-account", async (currentUser, token) => {
+    const userData = await User.findById(currentUser.id);
+    console.log({ currentUser, userData });
+    if (userData) {
+      userData.firstName = currentUser.firstName;
+      userData.lastName = currentUser.lastName;
+      userData.email = currentUser.email;
+    }
+    try {
+      await userData.save();
+      const { jwt, user } = authenticateUser(userData);
+      io.to(socket.id).emit("update-account-success", jwt, user);
+    } catch (err) {
+      console.log("Failed to update account", err);
+      io.to(socket.id).emit("update-account-failure", err);
     }
   });
 
@@ -153,7 +214,7 @@ io.on("connection", (socket) => {
   socket.on("delete-document", async (documentId, userId) => {
     const deleted = await Document.findByIdAndDelete(documentId);
     console.log("Document deleted", deleted);
-    socket.emit("document-deleted", documentId);
+    io.to(socket.id).emit("document-deleted", documentId);
   });
 
   socket.on("get-document", async (documentId, title, public, userId) => {

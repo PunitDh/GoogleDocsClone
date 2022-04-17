@@ -2,21 +2,17 @@ import React, { useState, useRef, useEffect } from "react";
 import ArticleTwoToneIcon from "@mui/icons-material/ArticleTwoTone";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import ManageAccountMenu from "./ManageAccountMenu";
+import { Link } from "react-router-dom";
 
 function Navbar({ search, handleSearch, currentUser, token }) {
   const signedIn = Boolean(currentUser && token);
   const manageAccountMenuRef = useRef();
-  const [showManageAccountMenu, setShowManageAccountMenu] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
     const checkOutsideClick = (e) => {
-      if (
-        showManageAccountMenu &&
-        !manageAccountMenuRef?.current?.contains(e.target)
-      ) {
-        setTimeout(() => {
-          setShowManageAccountMenu(false);
-        }, 300);
+      if (showMenu && !manageAccountMenuRef?.current?.contains(e.target)) {
+        setShowMenu(false);
       }
     };
     document.addEventListener("click", checkOutsideClick, false);
@@ -24,15 +20,17 @@ function Navbar({ search, handleSearch, currentUser, token }) {
     return () => {
       document.removeEventListener("click", checkOutsideClick);
     };
-  }, [showManageAccountMenu]);
+  }, [showMenu]);
 
   return (
     <nav>
       <div className="icon-container">
-        <ArticleTwoToneIcon
-          className="document-icon"
-          style={{ fontSize: "2.5rem" }}
-        />
+        <Link to="/documents">
+          <ArticleTwoToneIcon
+            className="document-icon"
+            style={{ fontSize: "2.5rem" }}
+          />
+        </Link>
       </div>
       <div className="search-container">
         {signedIn && (
@@ -53,14 +51,14 @@ function Navbar({ search, handleSearch, currentUser, token }) {
           <div
             ref={manageAccountMenuRef}
             className="manage-account-link"
-            onClick={() => setShowManageAccountMenu(true)}
+            onClick={() => setShowMenu(true)}
           >
             {currentUser &&
               `${currentUser.firstName
                 .at(0)
                 .toUpperCase()}${currentUser.lastName.at(0).toUpperCase()}`}
 
-            {showManageAccountMenu && <ManageAccountMenu />}
+            {showMenu && <ManageAccountMenu />}
           </div>
         )}
       </div>

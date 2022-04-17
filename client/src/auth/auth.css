@@ -52,14 +52,15 @@
   width: 100%;
 }
 
-.auth-main section form input {
-  height: 3rem;
+.auth-main section form input, .account-manage-container input {
+  height: 2rem;
   border: 1px solid rgba(0,0,0,0.1);
   border-radius: 0.5rem;
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #02153d;
   background-color: #eee;
   box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+  padding-left: 0.5rem;
 }
 
 .form-links-container {
