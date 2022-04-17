@@ -50,12 +50,7 @@ function App() {
           path="/documents/:id"
           element={
             signedIn ? (
-              <TextEditor
-                socket={socket}
-                setSocket={setSocket}
-                currentUser={currentUser}
-                token={token}
-              />
+              <TextEditor socket={socket} setSocket={setSocket} token={token} />
             ) : (
               <Navigate to="/login/" />
             )
@@ -65,11 +60,7 @@ function App() {
           path="/documents/"
           element={
             signedIn ? (
-              <Documents
-                socket={socket}
-                currentUser={currentUser}
-                token={token}
-              />
+              <Documents socket={socket} token={token} />
             ) : (
               <Navigate to="/login/" />
             )
@@ -110,7 +101,6 @@ function App() {
               <Account
                 token={token}
                 setToken={setToken}
-                currentUser={currentUser}
                 setCurrentUser={setCurrentUser}
               />
             ) : (

@@ -7,11 +7,13 @@ import { authenticateUser } from "./auth/auth";
 import Notification from "./components/Notification";
 import { NotificationType } from "./hooks";
 import bcrypt from "bcryptjs";
+import JWTDecode from "jwt-decode";
 
-function Account({ token, setToken, currentUser, setCurrentUser }) {
+function Account({ token, setToken, setCurrentUser }) {
   const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
+  const currentUser = JWTDecode(token);
 
   useEffect(() => {
     setLoading(false);

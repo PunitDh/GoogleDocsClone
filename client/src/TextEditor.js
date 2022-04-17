@@ -2,10 +2,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { io } from "socket.io-client";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import { useQuery } from "./hooks";
 import { CircularProgress } from "@mui/material";
+import JWTDecode from "jwt-decode";
 
 const SAVE_INTERVAL_MS = 10000;
 const TOOLBAR_OPTIONS = [
@@ -20,18 +21,25 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ];
 
-function TextEditor({ socket, setSocket, currentUser, token }) {
+function TextEditor({ socket, setSocket, token }) {
   const { id: documentId } = useParams();
   const query = useQuery();
   const [quill, setQuill] = useState(null);
   const [title, setTitle] = useState(`Document ${documentId}`);
+  const [close, setClose] = useState(false);
   const [publicDocument, setPublicDocument] = useState(
     query.get("public") === "true"
   );
+  const currentUser = JWTDecode(token);
   const [loading, setLoading] = useState(true);
 
   const saveDocument = () => {
     socket.emit("save-document", quill.getContents(), title, documentId);
+  };
+
+  const closeDocument = () => {
+    saveDocument();
+    setClose(true);
   };
 
   const handlePrivacyChange = (e) => {
@@ -44,13 +52,16 @@ function TextEditor({ socket, setSocket, currentUser, token }) {
     const s = io(process.env.REACT_APP_SERVER_URL);
     setSocket(s);
     window.scrollTo(0, 0);
-    return () => s.disconnect();
+    return () => {
+      s.disconnect();
+    };
   }, []);
 
   useEffect(() => {
     if (socket == null || quill == null) return;
 
     socket.once("load-document", (document) => {
+      console.log("Calling this");
       quill.setContents(document?.data);
       quill.enable(true);
       setTitle(document?.title);
@@ -66,7 +77,7 @@ function TextEditor({ socket, setSocket, currentUser, token }) {
       currentUser.id,
       token
     );
-  }, [socket, quill, documentId, title, publicDocument]);
+  }, [socket, quill, documentId, publicDocument]);
 
   useEffect(() => {
     if (socket == null || quill == null) return;
@@ -100,6 +111,7 @@ function TextEditor({ socket, setSocket, currentUser, token }) {
   const handleTitleChange = (e) => {
     e.preventDefault();
     setTitle(e.target.value);
+    console.log(e.target.value);
   };
 
   const saveTitle = () => {
@@ -132,6 +144,7 @@ function TextEditor({ socket, setSocket, currentUser, token }) {
 
   return (
     <div className="container">
+      {close && <Navigate to="/documents" />}
       {loading ? (
         <div className="loading-bar">
           <CircularProgress />
@@ -142,9 +155,9 @@ function TextEditor({ socket, setSocket, currentUser, token }) {
             className="document-title"
             type="text"
             value={title}
-            onChange={(e) => handleTitleChange(e)}
+            onChange={handleTitleChange}
             onBlur={saveTitle}
-            title="Rename"
+            title="Rename document"
           />
           <div className="privacy-change-container">
             <input
@@ -155,9 +168,9 @@ function TextEditor({ socket, setSocket, currentUser, token }) {
             />{" "}
             <label htmlFor="public">Public?</label>
           </div>
-          <Link to="/documents/" onClick={saveDocument} className="button-icon">
+          <div onClick={closeDocument} className="button-icon">
             <CloseTwoToneIcon />
-          </Link>
+          </div>
         </div>
       )}
 

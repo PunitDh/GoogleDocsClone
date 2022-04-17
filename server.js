@@ -203,9 +203,16 @@ io.on("connection", (socket) => {
   });
 
   socket.on("delete-document", async (documentId, userId) => {
-    const deleted = await Document.findByIdAndDelete(documentId);
-    console.log("Document deleted", deleted);
-    io.to(socket.id).emit("document-deleted", documentId);
+    const user = await User.findById(userId);
+
+    if (user?.superUser || user?._id === documentId.userId) {
+      const deleted = await Document.findByIdAndDelete(documentId);
+      console.log("Document deleted", deleted);
+      io.to(socket.id).emit("document-deleted", documentId);
+    } else {
+      console.log("User is not authorized to delete document");
+      io.to(socket.id).emit("unauthorized", "User is not authorized");
+    }
   });
 
   socket.on("get-document", async (documentId, title, public, userId) => {

@@ -6,12 +6,15 @@ import Thumbnail from "./components/Thumbnail";
 import { io } from "socket.io-client";
 import Navbar from "./components/Navbar";
 import CircularProgress from "@mui/material/CircularProgress";
+import JWTDecode from "jwt-decode";
 
-function Documents({ currentUser, token }) {
+function Documents({ token }) {
   const [documents, setDocuments] = useState([]);
   const [search, setSearch] = useState("");
   const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const currentUser = JWTDecode(token);
 
   const handleSearch = (e) => {
     e.preventDefault();

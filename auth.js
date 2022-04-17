@@ -1,5 +1,4 @@
 const JWT = require("jsonwebtoken");
-const User = require("./models/User");
 
 function authenticateUser(userData) {
   const currentUser = {

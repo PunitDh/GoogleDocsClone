@@ -25,8 +25,8 @@ function Login({ setToken, setCurrentUser, currentUser }) {
 
     socket.emit("login-user", user);
 
-    socket.on("login-success", (jwt, currentUser) => {
-      if (authenticateUser(jwt, setToken, currentUser, setCurrentUser)) {
+    socket.on("login-success", (jwt, user) => {
+      if (authenticateUser(jwt, setToken, user, setCurrentUser)) {
         setNotification({
           message: "Login successful",
           type: NotificationType.SUCCESS,
