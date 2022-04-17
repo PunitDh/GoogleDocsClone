@@ -8,7 +8,6 @@ import Navbar from "./components/Navbar";
 import CircularProgress from "@mui/material/CircularProgress";
 import JWTDecode from "jwt-decode";
 import Notification from "./components/Notification";
-import { NotificationType } from "./hooks";
 
 function Documents({ token }) {
   const [documents, setDocuments] = useState([]);

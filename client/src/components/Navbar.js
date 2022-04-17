@@ -3,11 +3,15 @@ import ArticleTwoToneIcon from "@mui/icons-material/ArticleTwoTone";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import ManageAccountMenu from "./ManageAccountMenu";
 import { Link } from "react-router-dom";
+import jwtDecode from "jwt-decode";
 
-function Navbar({ search, handleSearch, currentUser, token }) {
+function Navbar({ search, handleSearch, token }) {
+  const currentUser = jwtDecode(token);
   const signedIn = Boolean(currentUser && token);
   const manageAccountMenuRef = useRef();
   const [showMenu, setShowMenu] = useState(false);
+
+  console.log({ currentUser, token });
 
   useEffect(() => {
     const checkOutsideClick = (e) => {
@@ -55,8 +59,8 @@ function Navbar({ search, handleSearch, currentUser, token }) {
           >
             {currentUser &&
               `${currentUser.firstName
-                .at(0)
-                .toUpperCase()}${currentUser.lastName.at(0).toUpperCase()}`}
+                .charAt(0)
+                .toUpperCase()}${currentUser.lastName.charAt(0).toUpperCase()}`}
 
             {showMenu && <ManageAccountMenu />}
           </div>
