@@ -247,21 +247,21 @@ io.on("connection", (socket) => {
 async function findOrCreateDocument(documentId, title, public, userId) {
   if (documentId == null) return;
   const document = await Document.findById(documentId);
-  const user = await User.findById(userId);
 
   if (document) {
+    const user = await User.findById(userId);
     if (document.userId === userId || user.superUser || document.public) {
       return document;
     }
+  } else {
+    return await Document.create({
+      _id: documentId,
+      data: defaultValue,
+      title,
+      userId,
+      public: Boolean(public),
+    });
   }
-
-  return await Document.create({
-    _id: documentId,
-    data: defaultValue,
-    title,
-    userId,
-    public: Boolean(public),
-  });
 }
 
 isProduction &&
