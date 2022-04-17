@@ -114,10 +114,6 @@ io.on("connection", (socket) => {
         } else {
           const user = await User.findById(decoded.id);
           if (user) {
-            console.log({
-              oldPassword: password.oldPassword,
-              currentPassword: user.password,
-            });
             if (bcrypt.compareSync(password.oldPassword, user.password)) {
               try {
                 user.password = password.newPassword;
@@ -145,10 +141,6 @@ io.on("connection", (socket) => {
   socket.on("login-user", async (user) => {
     const userData = await User.findOne({ email: user.email });
     if (userData) {
-      console.log({
-        userPassword: user.password,
-        userDataPassword: userData.password,
-      });
       if (bcrypt.compareSync(user.password, userData.password)) {
         console.log("Login success");
         const { jwt, user } = authenticateUser(userData);
@@ -165,7 +157,6 @@ io.on("connection", (socket) => {
 
   socket.on("update-account", async (currentUser, token) => {
     const userData = await User.findById(currentUser.id);
-    console.log({ currentUser, userData });
     if (userData) {
       userData.firstName = currentUser.firstName;
       userData.lastName = currentUser.lastName;
