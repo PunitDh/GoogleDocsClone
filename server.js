@@ -97,24 +97,7 @@ io.on("connection", (socket) => {
         updatedAt: -1,
       });
 
-      const users = publicDocuments.map((document) => document.userId);
-      const usersData = await User.find({
-        _id: { $in: users },
-      });
-
-      console.log({ usersData });
-
-      const publicDocumentsWithUsers = publicDocuments.map((document) => {
-        const user = usersData.find(
-          (user) => user._id.toString() === document.userId.toString()
-        );
-        return {
-          ...document.toObject(),
-          author: user.firstName + " " + user.lastName,
-        };
-      });
-
-      documents.push(...publicDocumentsWithUsers);
+      documents.push(...publicDocuments);
 
       socket.emit("load-documents", documents);
     }
@@ -271,9 +254,9 @@ io.on("connection", (socket) => {
 async function findOrCreateDocument(documentId, title, public, userId) {
   if (documentId == null) return;
   const document = await Document.findById(documentId);
+  const user = await User.findById(userId);
 
   if (document) {
-    const user = await User.findById(userId);
     if (document.userId === userId || user.superUser || document.public) {
       return document;
     }
@@ -283,6 +266,7 @@ async function findOrCreateDocument(documentId, title, public, userId) {
       data: defaultValue,
       title,
       userId,
+      author: `${user.firstName} ${user.lastName}`,
       public: Boolean(public),
     });
   }
