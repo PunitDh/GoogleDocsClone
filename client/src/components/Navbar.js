@@ -5,13 +5,10 @@ import ManageAccountMenu from "./ManageAccountMenu";
 import { Link } from "react-router-dom";
 import jwtDecode from "jwt-decode";
 
-function Navbar({ search, handleSearch, token }) {
-  const currentUser = jwtDecode(token);
+function Navbar({ search, handleSearch, token, currentUser }) {
   const signedIn = Boolean(currentUser && token);
   const manageAccountMenuRef = useRef();
   const [showMenu, setShowMenu] = useState(false);
-
-  console.log({ currentUser, token });
 
   useEffect(() => {
     const checkOutsideClick = (e) => {
