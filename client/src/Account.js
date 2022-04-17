@@ -127,30 +127,33 @@ function Account({ token, setToken, currentUser, setCurrentUser }) {
                 onSubmit={handleUpdateAccount}
               >
                 <div className="account-manage-form-control">
-                  <label>First Name</label>
+                  <label htmlFor="firstName">First Name</label>
                   <input
                     type="text"
                     name="firstName"
+                    id="firstName"
                     defaultValue={currentUser.firstName}
                     required
                   />
                 </div>
 
                 <div className="account-manage-form-control">
-                  <label>Last Name</label>
+                  <label htmlFor="lastName">Last Name</label>
                   <input
                     type="text"
                     name="lastName"
+                    id="lastName"
                     defaultValue={currentUser.lastName}
                     required
                   />
                 </div>
 
                 <div className="account-manage-form-control">
-                  <label>Email</label>
+                  <label htmlFor="email">Email</label>
                   <input
                     type="email"
                     name="email"
+                    id="email"
                     defaultValue={currentUser.email}
                     required
                   />
@@ -169,24 +172,28 @@ function Account({ token, setToken, currentUser, setCurrentUser }) {
                 onSubmit={handleChangePassword}
               >
                 <div className="account-manage-form-control">
-                  <label>Current Password</label>
-                  <input type="password" name="oldPassword" />
+                  <label htmlFor="oldPassword">Current Password</label>
+                  <input id="oldPassword" type="password" name="oldPassword" />
                 </div>
 
                 <div className="account-manage-form-control">
-                  <label>New Password</label>
-                  <input type="password" name="newPassword" />
+                  <label htmlFor="newPassword">New Password</label>
+                  <input id="oldPassword" type="password" name="newPassword" />
                 </div>
 
                 <div className="account-manage-form-control">
-                  <label>Confirm New Password</label>
-                  <input type="password" name="newPasswordConfirmation" />
+                  <label htmlFor="newPasswordConfirmation">
+                    Confirm New Password
+                  </label>
+                  <input
+                    id="newPasswordConfirmation"
+                    type="password"
+                    name="newPasswordConfirmation"
+                  />
                 </div>
                 <div className="account-manage-form-control">
                   <label></label>
-                  <button type="button" className="form-button">
-                    Change password
-                  </button>
+                  <button className="form-button">Change password</button>
                 </div>
               </form>
             </section>
