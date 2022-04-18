@@ -11,13 +11,11 @@ export const useNotification = ({ message, type }) => {
     }
   }, [message, type]);
 
-  return { notification, setNotification };
+  return [notification, setNotification];
 };
 
-export const useQuery = (queryName) => {
-  const searchQueries = new URLSearchParams(useLocation().search);
-  return searchQueries.get(queryName);
-};
+export const useQuery = (queryName) =>
+  new URLSearchParams(useLocation().search).get(queryName);
 
 export const useSocket = () => {
   const [socket, setSocket] = useState(null);

@@ -14,6 +14,7 @@ import JWTDecode from "jwt-decode";
 import Logout from "./auth/Logout";
 import Account from "./Account";
 import Confirm from "./auth/Confirm";
+import { authenticateUser } from "./auth/auth";
 
 function App() {
   const [socket, setSocket] = useState();
@@ -29,9 +30,21 @@ function App() {
     const s = io(process.env.REACT_APP_SERVER_URL);
     setSocket(s);
 
+    if (token) {
+      authenticateUser(token, setToken);
+    } else {
+      setCurrentUser(null);
+    }
+
     s.emit("verify-token", token);
     s.on("verified-token", (currentUser) => {
       setCurrentUser(currentUser);
+    });
+
+    s.on("invalid-token", () => {
+      setToken(null);
+      localStorage.removeItem(process.env.REACT_APP_TOKEN_NAME);
+      setCurrentUser(null);
     });
 
     return () => s.disconnect();
@@ -60,11 +73,7 @@ function App() {
         <Route
           path="/documents/"
           element={
-            signedIn ? (
-              <Documents socket={socket} token={token} />
-            ) : (
-              <Navigate to="/login/" />
-            )
+            signedIn ? <Documents token={token} /> : <Navigate to="/login/" />
           }
         />
         <Route
@@ -73,11 +82,7 @@ function App() {
             signedIn ? (
               <Navigate to="/documents" />
             ) : (
-              <Register
-                setToken={setToken}
-                setCurrentUser={setCurrentUser}
-                currentUser={currentUser}
-              />
+              <Register setToken={setToken} currentUser={currentUser} />
             )
           }
         />
@@ -87,35 +92,21 @@ function App() {
             signedIn ? (
               <Navigate to="/documents/" />
             ) : (
-              <Login
-                setToken={setToken}
-                setCurrentUser={setCurrentUser}
-                currentUser={currentUser}
-              />
+              <Login setToken={setToken} currentUser={currentUser} />
             )
           }
         />
         <Route
           path="/account/"
           element={
-            signedIn ? (
-              <Account
-                token={token}
-                setToken={setToken}
-                setCurrentUser={setCurrentUser}
-              />
-            ) : (
-              <Navigate to="/login/" />
-            )
+            signedIn ? <Account token={token} /> : <Navigate to="/login/" />
           }
         />
-        <Route path="/confirm-account" element={<Confirm />} />
         <Route
-          path="/logout/"
-          element={
-            <Logout setToken={setToken} setCurrentUser={setCurrentUser} />
-          }
+          path="/confirm-account"
+          element={<Confirm setToken={setToken} />}
         />
+        <Route path="/logout/" element={<Logout setToken={setToken} />} />
       </Routes>
     </Router>
   );

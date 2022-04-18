@@ -3,7 +3,6 @@ import ArticleTwoToneIcon from "@mui/icons-material/ArticleTwoTone";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import ManageAccountMenu from "./ManageAccountMenu";
 import { Link } from "react-router-dom";
-import jwtDecode from "jwt-decode";
 
 function Navbar({ search, handleSearch, token, currentUser }) {
   const signedIn = Boolean(currentUser && token);

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { v4 as uuidV4 } from "uuid";
 import "./documents.css";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
@@ -8,6 +8,8 @@ import Navbar from "./components/Navbar";
 import CircularProgress from "@mui/material/CircularProgress";
 import JWTDecode from "jwt-decode";
 import Notification from "./components/Notification";
+import Tooltip from "./components/Tooltip";
+import { NotificationType } from "./hooks";
 
 function Documents({ token }) {
   const [documents, setDocuments] = useState([]);
@@ -27,7 +29,7 @@ function Documents({ token }) {
     const s = io(process.env.REACT_APP_SERVER_URL);
     setSocket(s);
 
-    s.emit("get-documents", currentUser.id, token);
+    s.emit("get-documents", token);
 
     s.on("load-documents", (documents) => {
       setDocuments(
@@ -56,10 +58,20 @@ function Documents({ token }) {
   }, []);
 
   useEffect(() => {
-    if (socket)
-      socket.on("document-deleted", (id) => {
-        setDocuments(documents.filter((document) => document._id !== id));
+    if (socket) {
+      socket.on("document-deleted", (documentId) => {
+        setDocuments(
+          documents.filter((document) => document._id !== documentId)
+        );
       });
+
+      socket.on("unauthorized-document-delete", (message) => {
+        setNotification({
+          message,
+          type: NotificationType.ERROR,
+        });
+      });
+    }
   }, [documents]);
 
   useEffect(() => {
@@ -70,14 +82,14 @@ function Documents({ token }) {
       return;
     }
 
-    documents.forEach((it) => {
+    documents.forEach((document) => {
       if (
-        it.title.toLowerCase().includes(search.toLowerCase()) ||
-        it.data.toLowerCase().includes(search.toLowerCase())
+        document.title.toLowerCase().includes(search.toLowerCase()) ||
+        document.data.toLowerCase().includes(search.toLowerCase())
       ) {
-        it.visible = true;
+        document.visible = true;
       } else {
-        it.visible = false;
+        document.visible = false;
       }
     });
   }, [search]);
@@ -114,7 +126,14 @@ function Documents({ token }) {
                   link={`/documents/${uuidV4()}?public=true`}
                   display={<GroupAddIcon style={{ fontSize: "2.5rem" }} />}
                   create
-                  title="Public Document"
+                  title={
+                    <>
+                      Public Document{" "}
+                      <Tooltip text="[?]">
+                        Public documents can be viewed by anyone
+                      </Tooltip>
+                    </>
+                  }
                   visible={true}
                 />
               </div>
@@ -125,7 +144,7 @@ function Documents({ token }) {
                 {documents.map((document) => (
                   <Thumbnail
                     key={document._id}
-                    id={document._id}
+                    documentId={document._id}
                     link={`/documents/${document._id}`}
                     display={document.data}
                     title={document.title}

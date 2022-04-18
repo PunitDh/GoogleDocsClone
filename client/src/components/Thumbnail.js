@@ -12,14 +12,14 @@ function Thumbnail({
   author,
   create,
   visible,
-  id,
+  documentId,
   socket,
 }) {
   const [showModal, setShowModal] = useState(false);
 
   const handleDelete = () => {
     if (socket) {
-      socket.emit("delete-document", id);
+      socket.emit("delete-document", documentId);
       setShowModal(false);
     }
   };

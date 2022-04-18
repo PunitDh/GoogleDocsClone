@@ -7,9 +7,10 @@ import Navbar from "../components/Navbar";
 import Notification from "../components/Notification";
 import { NotificationType, useSocket } from "../hooks";
 import bcrypt from "bcryptjs";
-import { authenticateUser } from "./auth";
+import { authenticateUser, validatePassword } from "./auth";
+import PasswordField from "./PasswordField";
 
-function Register({ setToken, setCurrentUser, currentUser }) {
+function Register({ setToken, currentUser }) {
   const [showPassword, setShowPassword] = useState(false);
   const [notification, setNotification] = useState(null);
   const socket = useSocket();
@@ -26,9 +27,12 @@ function Register({ setToken, setCurrentUser, currentUser }) {
     const email = e.target.email.value;
     const password = e.target.password.value;
     const passwordConfirmation = e.target.passwordConfirmation.value;
-    if (password !== passwordConfirmation) {
+
+    const isValidPassword = validatePassword(password, passwordConfirmation);
+
+    if (isValidPassword.error) {
       setNotification({
-        message: "Passwords do not match",
+        message: isValidPassword.error,
         type: NotificationType.ERROR,
       });
       return;
@@ -47,18 +51,18 @@ function Register({ setToken, setCurrentUser, currentUser }) {
       return;
     }
 
-    socket.on("user-registered-success", (jwt, user) => {
-      if (authenticateUser(jwt, setToken, user, setCurrentUser)) {
+    socket.on("user-registered-success", (jwt, message) => {
+      if (authenticateUser(jwt, setToken)) {
         setNotification({
-          message: "Email address registered successfully",
+          message,
           type: NotificationType.SUCCESS,
         });
       }
     });
 
-    socket.on("user-registered-failure", (error) => {
+    socket.on("user-registered-failure", (message) => {
       setNotification({
-        message: error,
+        message,
         type: NotificationType.ERROR,
       });
     });
@@ -106,37 +110,11 @@ function Register({ setToken, setCurrentUser, currentUser }) {
                 placeholder="Email"
                 required
               />
-              <div className="password-container">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  className="password-input"
-                  name="password"
-                  placeholder="Password"
-                  required
-                />
-                {showPassword ? (
-                  <span title="Hide password">
-                    <VisibilityOffIcon
-                      onClick={handleShowPassword}
-                      className="password-eye"
-                    />
-                  </span>
-                ) : (
-                  <span title="Show password">
-                    <VisibilityIcon
-                      onClick={handleShowPassword}
-                      className="password-eye"
-                    />
-                  </span>
-                )}
-                <input
-                  type={showPassword ? "text" : "password"}
-                  className="password-input"
-                  name="passwordConfirmation"
-                  placeholder="Password Confirmation"
-                  required
-                />
-              </div>
+              <PasswordField name="password" placeholder="Password" />
+              <PasswordField
+                name="passwordConfirmation"
+                placeholder="Password Confirmation"
+              />
 
               <div className="form-links-container">
                 <Link

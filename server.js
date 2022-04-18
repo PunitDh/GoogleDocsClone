@@ -10,7 +10,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const http = isProduction && require("http").Server(app);
 const { authenticateUser, verifyJWT } = require("./auth");
-const { sendConfirmationEmail, verifyConfirmation } = require("./mailer");
+const { sendConfirmationEmail, confirmUserAccount } = require("./mailer");
 const port = process.env.PORT || 3010;
 let io;
 
@@ -39,7 +39,7 @@ if (isProduction) {
 mongoose
   .connect(process.env.MONGODB_URL)
   .then((res) => {
-    console.log("Connected to MongoDB database: ", res.connections[0].name);
+    console.log("Connected to MongoDB database:", res.connections[0].name);
   })
   .catch((err) => {
     console.log("Failed to connect to MongoDB database", err);
@@ -64,51 +64,62 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("get-documents", async (userId) => {
-    const user = await User.findById(userId);
-    if (!user) return;
-    if (user.superUser) {
-      const documents = await Document.find().sort({ updatedAt: -1 });
-      socket.emit("load-documents", documents);
+  socket.on("get-documents", async (token) => {
+    const decodedUser = verifyJWT(token);
+    if (decodedUser) {
+      const user = await User.findById(decodedUser.id);
+      if (!user) return;
+      if (user.superUser) {
+        const documents = await Document.find().sort({ updatedAt: -1 });
+        socket.emit("load-documents", documents);
+      } else {
+        const documents = await Document.find({
+          userId: user._id,
+          public: false,
+        }).sort({
+          updatedAt: -1,
+        });
+
+        const publicDocuments = await Document.find({
+          public: true,
+        }).sort({
+          updatedAt: -1,
+        });
+
+        documents.push(...publicDocuments);
+
+        socket.emit("load-documents", documents);
+      }
     } else {
-      const documents = await Document.find({
-        userId: user._id,
-        public: false,
-      }).sort({
-        updatedAt: -1,
-      });
-
-      const publicDocuments = await Document.find({
-        public: true,
-      }).sort({
-        updatedAt: -1,
-      });
-
-      documents.push(...publicDocuments);
-
-      socket.emit("load-documents", documents);
+      console.log("Failed to verify token");
+      io.to(socket.id).emit("invalid-token");
     }
   });
 
   socket.on("confirm-email", async (token) => {
-    const confirmed = await verifyConfirmation(token);
-    if (confirmed) {
-      io.to(socket.id).emit("confirm-email-success");
+    const confirmedUser = await confirmUserAccount(token);
+    if (confirmedUser) {
+      const { jwt } = authenticateUser(confirmedUser);
+      io.to(socket.id).emit("confirm-email-success", jwt);
     } else {
       console.log("Failed to confirm email");
     }
   });
 
-  socket.on("change-password", async (password, token) => {
+  socket.on("change-password", async (passwordObj, token) => {
     const decoded = verifyJWT(token);
     if (decoded) {
       const user = await User.findById(decoded.id);
       if (user) {
-        if (bcrypt.compareSync(password.oldPassword, user.password)) {
+        if (bcrypt.compareSync(passwordObj.oldPassword, user.password)) {
           try {
-            user.password = password.newPassword;
+            user.password = passwordObj.newPassword;
             await user.save();
-            io.to(socket.id).emit("change-password-success");
+            console.log("Password changed successfully");
+            io.to(socket.id).emit(
+              "change-password-success",
+              "Password changed successfully"
+            );
           } catch (err) {
             console.log("Failed to save user");
             io.to(socket.id).emit(
@@ -130,12 +141,14 @@ io.on("connection", (socket) => {
     const decoded = verifyJWT(token);
     if (decoded) {
       const userId = decoded.id;
-      const deletedDocuments = await Document.deleteMany({ userId });
-      const deletedUser = await User.findByIdAndDelete(userId);
-      if (deletedUser) {
-        io.emit("user-deleted", deletedUser, deletedDocuments);
+      try {
+        await Document.deleteMany({ userId });
+        await User.findByIdAndDelete(userId);
+        io.emit("user-deleted", "Account deleted successfully");
+      } catch (err) {
+        console.log("Failed to delete user");
+        io.to(socket.id).emit("delete-permanently-failure", "Failed to delete");
       }
-    } else {
       console.log("Failed to verify token");
       io.to(socket.id).emit("delete-permanently-failure", "User is invalid");
     }
@@ -145,9 +158,9 @@ io.on("connection", (socket) => {
     const userData = await User.findOne({ email: user.email });
     if (userData) {
       if (bcrypt.compareSync(user.password, userData.password)) {
-        console.log("Login success");
-        const { jwt, user } = authenticateUser(userData);
-        io.to(socket.id).emit("login-success", jwt, user);
+        console.log("Login successful");
+        const { jwt } = authenticateUser(userData);
+        io.to(socket.id).emit("login-success", jwt, "Login successful");
       } else {
         console.log("Wrong password");
         io.to(socket.id).emit("login-failure", "Wrong password");
@@ -159,19 +172,27 @@ io.on("connection", (socket) => {
   });
 
   socket.on("update-account", async (currentUser, token) => {
-    const userData = await User.findById(currentUser.id);
-    if (userData) {
-      userData.firstName = currentUser.firstName;
-      userData.lastName = currentUser.lastName;
-      userData.email = currentUser.email;
-    }
-    try {
-      await userData.save();
-      const { jwt, user } = authenticateUser(userData);
-      io.to(socket.id).emit("update-account-success", jwt, user);
-    } catch (err) {
-      console.log("Failed to update account", err);
-      io.to(socket.id).emit("update-account-failure", err);
+    const decoded = verifyJWT(token);
+    if (decoded) {
+      const userData = await User.findById(currentUser.id);
+      if (userData) {
+        userData.firstName = currentUser.firstName;
+        userData.lastName = currentUser.lastName;
+        userData.email = currentUser.email;
+      }
+      try {
+        await userData.save();
+        io.to(socket.id).emit("update-account-success");
+      } catch (err) {
+        console.log("Failed to update account", err);
+        io.to(socket.id).emit(
+          "update-account-failure",
+          "Failed to update account"
+        );
+      }
+    } else {
+      console.log("Failed to verify token");
+      io.to(socket.id).emit("update-account-failure", "User is invalid");
     }
   });
 
@@ -193,12 +214,16 @@ io.on("connection", (socket) => {
       try {
         const userData = await newUser.save();
 
-        console.log("From registration", { userData });
-        const { jwt, user } = authenticateUser(userData);
+        console.log("Email address registered successfully");
+        const { jwt } = authenticateUser(userData);
 
-        sendConfirmationEmail(userData);
-
-        io.to(socket.id).emit("user-registered-success", jwt, user);
+        await sendConfirmationEmail(userData);
+        console.log("Confirmation email sent");
+        io.to(socket.id).emit(
+          "user-registered-success",
+          jwt,
+          "Email address registered successfully"
+        );
       } catch (err) {
         console.log("Failed to save user", err);
         io.to(socket.id).emit(
@@ -217,8 +242,11 @@ io.on("connection", (socket) => {
       console.log("Document deleted", deleted);
       io.to(socket.id).emit("document-deleted", documentId);
     } else {
-      console.log("User is not authorized to delete document");
-      io.to(socket.id).emit("unauthorized", "User is not authorized");
+      console.log("User is not authorized to delete this document");
+      io.to(socket.id).emit(
+        "unauthorized-document-delete",
+        "User is not authorized to delete this document"
+      );
     }
   });
 

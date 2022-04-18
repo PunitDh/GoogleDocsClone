@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import "./auth.css";
 
-function Logout({ setToken, setCurrentUser }) {
+function Logout({ setToken }) {
   const [logout, setLogout] = useState(false);
   const [dots, setDots] = useState(0);
 
@@ -15,7 +15,6 @@ function Logout({ setToken, setCurrentUser }) {
 
     if (!localStorage.getItem(process.env.REACT_APP_TOKEN_NAME)) {
       setToken(null);
-      setCurrentUser(null);
       setTimeout(() => {
         setLogout(true);
         clearInterval(dotInterval);

@@ -1,23 +1,22 @@
 import { CircularProgress } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import Navbar from "../components/Navbar";
 import { useQuery } from "../hooks";
 
-function Confirm() {
+function Confirm({ setToken }) {
   const token = useQuery("token");
   const [loading, setLoading] = useState(true);
   const [seconds, setSeconds] = useState(-1);
   const [redirect, setRedirect] = useState(false);
 
-  console.log({ token });
-
   useEffect(() => {
     const s = io(process.env.REACT_APP_SERVER_URL);
 
     s.emit("confirm-email", token);
-    s.on("confirm-email-success", () => {
+    s.on("confirm-email-success", (jwt) => {
+      setToken(jwt);
       setLoading(false);
       setSeconds(5);
     });
@@ -56,7 +55,10 @@ function Confirm() {
               <div className="content">
                 You will be redirected automatically in {seconds} seconds.
               </div>
-              <div className="content">Click here to be redirected</div>
+              <div className="content">
+                <Link to="/">Click here</Link> if your browser does not redirect
+                you automatically.
+              </div>
             </section>
           </main>
         )}

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { io } from "socket.io-client";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import { useQuery } from "./hooks";
 import { CircularProgress } from "@mui/material";
@@ -108,7 +108,6 @@ function TextEditor({ socket, setSocket, token }) {
   const handleTitleChange = (e) => {
     e.preventDefault();
     setTitle(e.target.value);
-    console.log(e.target.value);
   };
 
   const saveTitle = () => {

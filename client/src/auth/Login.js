@@ -1,21 +1,15 @@
 import React, { useState } from "react";
 import "./auth.css";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { Link, Navigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useSocket, NotificationType } from "../hooks";
 import Notification from "../components/Notification";
 import { authenticateUser } from "./auth";
+import PasswordField from "./PasswordField";
 
-function Login({ setToken, setCurrentUser, currentUser }) {
-  const [showPassword, setShowPassword] = useState(false);
+function Login({ setToken, currentUser }) {
   const [notification, setNotification] = useState(null);
   const socket = useSocket();
-
-  const handleShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -33,10 +27,10 @@ function Login({ setToken, setCurrentUser, currentUser }) {
       return;
     }
 
-    socket.on("login-success", (jwt, user) => {
-      if (authenticateUser(jwt, setToken, user, setCurrentUser)) {
+    socket.on("login-success", (jwt, message) => {
+      if (authenticateUser(jwt, setToken)) {
         setNotification({
-          message: "Login successful",
+          message,
           type: NotificationType.SUCCESS,
         });
       }
@@ -77,29 +71,7 @@ function Login({ setToken, setCurrentUser, currentUser }) {
                 className="user-input"
                 placeholder="Email"
               />
-              <div className="password-container">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  className="password-input"
-                  name="password"
-                  placeholder="Password"
-                />
-                {showPassword ? (
-                  <span title="Hide password">
-                    <VisibilityOffIcon
-                      onClick={handleShowPassword}
-                      className="password-eye"
-                    />
-                  </span>
-                ) : (
-                  <span title="Show password">
-                    <VisibilityIcon
-                      onClick={handleShowPassword}
-                      className="password-eye"
-                    />
-                  </span>
-                )}
-              </div>
+              <PasswordField name="password" placeholder="Password" />
               <div className="form-links-container">
                 <Link
                   className="form-link"

@@ -66,7 +66,7 @@ function getConfirmationEmailToken(userData) {
   };
 }
 
-async function verifyConfirmation(token) {
+async function confirmUserAccount(token) {
   try {
     const decoded = JWT.verify(token, process.env.JWT_SECRET);
     const userData = await User.findById(decoded.id);
@@ -75,12 +75,13 @@ async function verifyConfirmation(token) {
         userData.confirmed = true;
         userData.confirmationToken = null;
         await userData.save();
-        return true;
+        return userData;
       }
     }
+    return false;
   } catch (err) {
     return false;
   }
 }
 
-module.exports = { sendConfirmationEmail, verifyConfirmation };
+module.exports = { sendConfirmationEmail, confirmUserAccount };

@@ -79,7 +79,6 @@
 .password-container {
   width: 60%;
   position: relative;
-  gap: 0.5rem;
   display: flex;
   flex-direction: column;
 }
@@ -90,6 +89,7 @@
   right: 0.5rem;
   cursor: pointer;
   color: gray;
+  z-index: 2000;
 }
 
 .password-eye:hover {

@@ -3,15 +3,16 @@ import React, { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import "./account.css";
 import { io } from "socket.io-client";
-import { authenticateUser } from "./auth/auth";
+import { authenticateUser, validatePassword } from "./auth/auth";
 import Notification from "./components/Notification";
 import { NotificationType } from "./hooks";
 import bcrypt from "bcryptjs";
 import JWTDecode from "jwt-decode";
 import Dialog from "./components/Dialog";
 import { Navigate } from "react-router-dom";
+import AccountPasswordField from "./auth/AccountPasswordField";
 
-function Account({ token, setToken, setCurrentUser }) {
+function Account({ token }) {
   const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
@@ -47,17 +48,16 @@ function Account({ token, setToken, setCurrentUser }) {
       token
     );
 
-    socket.on("update-account-success", (jwt) => {
-      authenticateUser(jwt, setToken, currentUser, setCurrentUser);
+    socket.on("update-account-success", () => {
       setNotification({
         message: "Account updated successfully",
         type: NotificationType.SUCCESS,
       });
     });
 
-    socket.on("update-account-failure", (jwt) => {
+    socket.on("update-account-failure", (message) => {
       setNotification({
-        message: "Failed to update account",
+        message,
         type: NotificationType.ERROR,
       });
     });
@@ -69,9 +69,14 @@ function Account({ token, setToken, setCurrentUser }) {
     const newPassword = e.target.newPassword.value;
     const newPasswordConfirmation = e.target.newPasswordConfirmation.value;
 
-    if (newPassword !== newPasswordConfirmation) {
+    const isValidPassword = validatePassword(
+      newPassword,
+      newPasswordConfirmation
+    );
+
+    if (isValidPassword.error) {
       setNotification({
-        message: "Passwords do not match",
+        message: isValidPassword.error,
         type: NotificationType.ERROR,
       });
       return;
@@ -89,10 +94,9 @@ function Account({ token, setToken, setCurrentUser }) {
       token
     );
 
-    socket.on("change-password-success", (jwt) => {
-      authenticateUser(jwt, setToken, currentUser, setCurrentUser);
+    socket.on("change-password-success", (message) => {
       setNotification({
-        message: "Password changed successfully",
+        message,
         type: NotificationType.SUCCESS,
       });
     });
@@ -109,15 +113,22 @@ function Account({ token, setToken, setCurrentUser }) {
     e.preventDefault();
     setShowModal(false);
     socket.emit("delete-permanently", token);
-    socket.on("user-deleted", () => {
+    socket.on("user-deleted", (message) => {
       setNotification({
-        message: "Account deleted successfully",
+        message,
         type: NotificationType.SUCCESS,
       });
 
       setTimeout(() => {
         setAccountDeleted(true);
       }, 1000);
+    });
+
+    socket.on("delete-permanently-failure", (message) => {
+      setNotification({
+        message,
+        type: NotificationType.ERROR,
+      });
     });
   };
 
@@ -200,26 +211,15 @@ function Account({ token, setToken, setCurrentUser }) {
                 className="account-manage-container"
                 onSubmit={handleChangePassword}
               >
-                <div className="account-manage-form-control">
-                  <label htmlFor="oldPassword">Current Password</label>
-                  <input id="oldPassword" type="password" name="oldPassword" />
-                </div>
-
-                <div className="account-manage-form-control">
-                  <label htmlFor="newPassword">New Password</label>
-                  <input id="newPassword" type="password" name="newPassword" />
-                </div>
-
-                <div className="account-manage-form-control">
-                  <label htmlFor="newPasswordConfirmation">
-                    Confirm New Password
-                  </label>
-                  <input
-                    id="newPasswordConfirmation"
-                    type="password"
-                    name="newPasswordConfirmation"
-                  />
-                </div>
+                <AccountPasswordField
+                  name="oldPassword"
+                  label="Current Password"
+                />
+                <AccountPasswordField name="newPassword" label="New Password" />
+                <AccountPasswordField
+                  name="newPasswordConfirmation"
+                  label="Confirm New Password"
+                />
                 <div className="account-manage-form-control">
                   <label></label>
                   <button className="form-button">Change password</button>
