@@ -18,12 +18,10 @@ function Dialog({
         break;
       case "ArrowRight":
         e.preventDefault();
-
         noButton.current.focus();
         break;
       case "ArrowLeft":
         e.preventDefault();
-
         yesButton.current.focus();
         break;
       default:

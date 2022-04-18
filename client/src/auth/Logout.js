@@ -28,8 +28,8 @@ function Logout({ setToken, setCurrentUser }) {
       {logout ? (
         <Navigate to="/" />
       ) : (
-        <div className="logout-message">Logging you out{".".repeat(dots)}</div>
-      )}{" "}
+        <div className="logout-message">Logging you out {".".repeat(dots)}</div>
+      )}
     </>
   );
 }

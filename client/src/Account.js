@@ -9,12 +9,14 @@ import { NotificationType } from "./hooks";
 import bcrypt from "bcryptjs";
 import JWTDecode from "jwt-decode";
 import Dialog from "./components/Dialog";
+import { Navigate } from "react-router-dom";
 
 function Account({ token, setToken, setCurrentUser }) {
   const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [accountDeleted, setAccountDeleted] = useState(false);
   const currentUser = JWTDecode(token);
 
   useEffect(() => {
@@ -105,8 +107,18 @@ function Account({ token, setToken, setCurrentUser }) {
 
   const handleDeleteAccount = (e) => {
     e.preventDefault();
+    setShowModal(false);
     socket.emit("delete-permanently", token);
-    socket.on("user-deleted", () => {});
+    socket.on("user-deleted", () => {
+      setNotification({
+        message: "Account deleted successfully",
+        type: NotificationType.SUCCESS,
+      });
+
+      setTimeout(() => {
+        setAccountDeleted(true);
+      }, 1000);
+    });
   };
 
   return (
@@ -118,11 +130,12 @@ function Account({ token, setToken, setCurrentUser }) {
           setNotification={setNotification}
         />
       )}
+      {accountDeleted && <Navigate to="/logout" />}
       {
         <Dialog
           confirmationTitle="Confirm Delete"
           confirmationMessage="Are you sure you want to delete your account? All your documents will
-          be permanently deleted? This operation is not reversible."
+          be permanently deleted. This operation is not reversible."
           setShowModal={setShowModal}
           showModal={showModal}
           handleDelete={handleDeleteAccount}
