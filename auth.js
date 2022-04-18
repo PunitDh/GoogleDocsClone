@@ -6,6 +6,7 @@ function authenticateUser(userData) {
     firstName: userData.firstName,
     lastName: userData.lastName,
     id: userData._id,
+    confirmed: userData.confirmed,
   };
 
   const jwt = JWT.sign(currentUser, process.env.JWT_SECRET, {
@@ -15,4 +16,12 @@ function authenticateUser(userData) {
   return { jwt: `Bearer ${jwt}`, user: currentUser };
 }
 
-module.exports = { authenticateUser };
+function verifyJWT(token) {
+  try {
+    return JWT.verify(token.split(" ")[1], process.env.JWT_SECRET);
+  } catch (err) {
+    return false;
+  }
+}
+
+module.exports = { authenticateUser, verifyJWT };

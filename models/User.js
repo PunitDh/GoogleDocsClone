@@ -28,6 +28,10 @@ const User = new Schema(
       required: true,
       default: false,
     },
+    confirmationToken: {
+      type: String,
+      required: false,
+    },
   },
   { timestamps: true }
 );

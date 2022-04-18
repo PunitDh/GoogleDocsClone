@@ -8,26 +8,32 @@ const express = require("express");
 const app = isProduction && express();
 const cors = require("cors");
 const bcrypt = require("bcrypt");
-const JWT = require("jsonwebtoken");
 const http = isProduction && require("http").Server(app);
-const { authenticateUser } = require("./auth");
+const { authenticateUser, verifyJWT } = require("./auth");
 const port = process.env.PORT || 3010;
 let io;
 
 console.log({ isProduction });
-
-isProduction && app.use(cors());
-isProduction && app.use(express.static(__dirname));
-
 console.log("Server starting...");
 
-isProduction &&
+if (isProduction) {
+  app.use(cors());
+  app.use(express.static(__dirname));
   app.use(express.static(path.join(__dirname, "client", "build")));
-
-isProduction &&
   app.get("*", (_, res) => {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
   });
+  io = require("socket.io")(http);
+  console.log("Web socket connected in production:", io);
+} else {
+  io = require("socket.io")(process.env.PORT || 3001, {
+    cors: {
+      origin: process.env.FRONTEND_URL,
+      methods: ["GET", "POST"],
+    },
+  });
+  console.log("Web socket connected locally:", io);
+}
 
 mongoose
   .connect(process.env.MONGODB_URL)
@@ -38,42 +44,21 @@ mongoose
     console.log("Failed to connect to MongoDB database", err);
   });
 
-if (isProduction) {
-  io = require("socket.io")(http);
-} else {
-  io = require("socket.io")(process.env.PORT || 3001, {
-    cors: {
-      origin: process.env.FRONTEND_URL,
-      methods: ["GET", "POST"],
-    },
-  });
-}
-
 const defaultValue = "";
 
 io.on("connection", (socket) => {
   console.log("Web socket connected to socketID:", socket.id);
 
   socket.on("verify-token", (token) => {
-    if (token) {
-      JWT.verify(
-        token.split(" ")[1],
-        process.env.JWT_SECRET,
-        async (err, decoded) => {
-          if (err) {
-            console.log("Failed to verify token", err);
-            io.to(socket.id).emit("invalid-token");
-          } else {
-            socket.user = decoded;
-            const userData = await User.findById(decoded.id);
-            const { user } = authenticateUser(userData);
-            if (userData) {
-              io.to(socket.id).emit("verified-token", user);
-            }
-          }
-        }
-      );
+    const decoded = verifyJWT(token);
+    if (decoded) {
+      const userData = await User.findById(decoded.id);
+      const { user } = authenticateUser(userData);
+      if (userData) {
+        io.to(socket.id).emit("verified-token", user);
+      }
     } else {
+      console.log("Failed to verify token", err);
       io.to(socket.id).emit("invalid-token");
     }
   });
@@ -104,62 +89,58 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("confirm-email", async (token) => {
+    const decoded = verifyJWT(token);
+    if (decoded) {
+      const user = await User.findById(decoded.id);
+      if (user) {
+        user.confirmed = true;
+        await user.save();
+        io.to(socket.id).emit("confirm-email-success");
+      }
+    }
+  });
+
   socket.on("change-password", async (password, token) => {
-    JWT.verify(
-      token.split(" ")[1],
-      process.env.JWT_SECRET,
-      async (err, decoded) => {
-        if (err) {
-          console.log("Failed to verify token", err);
-          io.to(socket.id).emit("change-password-failure", "User is invalid");
-        } else {
-          const user = await User.findById(decoded.id);
-          if (user) {
-            if (bcrypt.compareSync(password.oldPassword, user.password)) {
-              try {
-                user.password = password.newPassword;
-                await user.save();
-                io.to(socket.id).emit("change-password-success");
-              } catch (err) {
-                console.log("Failed to save user", err);
-                io.to(socket.id).emit(
-                  "change-password-failure",
-                  "Failed to update password"
-                );
-              }
-            } else {
-              io.to(socket.id).emit(
-                "change-password-failure",
-                "Wrong password"
-              );
-            }
+    const decoded = verifyJWT(token);
+    if (decoded) {
+      const user = await User.findById(decoded.id);
+      if (user) {
+        if (bcrypt.compareSync(password.oldPassword, user.password)) {
+          try {
+            user.password = password.newPassword;
+            await user.save();
+            io.to(socket.id).emit("change-password-success");
+          } catch (err) {
+            console.log("Failed to save user", err);
+            io.to(socket.id).emit(
+              "change-password-failure",
+              "Failed to update password"
+            );
           }
+        } else {
+          io.to(socket.id).emit("change-password-failure", "Wrong password");
         }
       }
-    );
+    } else {
+      console.log("Failed to verify token", err);
+      io.to(socket.id).emit("change-password-failure", "User is invalid");
+    }
   });
 
   socket.on("delete-permanently", async (token) => {
-    JWT.verify(
-      token.split(" ")[1],
-      process.env.JWT_SECRET,
-      async (err, decoded) => {
-        if (err) {
-          console.log("Failed to verify token", err);
-          io.to(socket.id).emit(
-            "delete-permanently-failure",
-            "User is invalid"
-          );
-        } else {
-          const userId = decoded.id;
-          const deletedDocuments = await Document.deleteMany({ userId });
-          const deletedUser = await User.findByIdAndDelete(userId);
-          if (deletedUser) {
-            io.emit("user-deleted", deletedUser, deletedDocuments);
-          }
-        }
+    const decoded = verifyJWT(token);
+    if (decoded) {
+      const userId = decoded.id;
+      const deletedDocuments = await Document.deleteMany({ userId });
+      const deletedUser = await User.findByIdAndDelete(userId);
+      if (deletedUser) {
+        io.emit("user-deleted", deletedUser, deletedDocuments);
       }
-    );
+    } else {
+      console.log("Failed to verify token", err);
+      io.to(socket.id).emit("delete-permanently-failure", "User is invalid");
+    }
   });
 
   socket.on("login-user", async (user) => {

@@ -110,6 +110,10 @@
   .auth-main section:nth-child(1) {
     height: 50%;
   }
+
+  .auth-main section h1 {
+    text-shadow: none;
+  }
 }
 
 .logout-message {
@@ -123,4 +127,28 @@
   align-items: center;
   height: 100vh;
   width: 100%;
+}
+
+.confirm-main {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  padding-top: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-main section {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  justify-content: center;
+  align-items: center;
+}
+
+.confirm-main h3 {
+  margin-bottom: 3rem;
+  color: #444;
+  text-align: center;
 }

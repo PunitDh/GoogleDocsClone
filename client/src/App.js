@@ -13,6 +13,7 @@ import Register from "./auth/Register";
 import JWTDecode from "jwt-decode";
 import Logout from "./auth/Logout";
 import Account from "./Account";
+import Confirm from "./auth/Confirm";
 
 function App() {
   const [socket, setSocket] = useState();
@@ -108,6 +109,7 @@ function App() {
             )
           }
         />
+        <Route path="/confirm-account" element={<Confirm />} />
         <Route
           path="/logout/"
           element={

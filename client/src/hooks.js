@@ -14,7 +14,10 @@ export const useNotification = ({ message, type }) => {
   return { notification, setNotification };
 };
 
-export const useQuery = () => new URLSearchParams(useLocation().search);
+export const useQuery = (queryName) => {
+  const searchQueries = new URLSearchParams(useLocation().search);
+  return searchQueries.get(queryName);
+};
 
 export const useSocket = () => {
   const [socket, setSocket] = useState(null);

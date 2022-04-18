@@ -23,13 +23,11 @@ const TOOLBAR_OPTIONS = [
 
 function TextEditor({ socket, setSocket, token }) {
   const { id: documentId } = useParams();
-  const query = useQuery();
+  const query = useQuery("public");
   const [quill, setQuill] = useState(null);
   const [title, setTitle] = useState(`Document ${documentId}`);
   const [close, setClose] = useState(false);
-  const [publicDocument, setPublicDocument] = useState(
-    query.get("public") === "true"
-  );
+  const [publicDocument, setPublicDocument] = useState(query === "true");
   const currentUser = JWTDecode(token);
   const [loading, setLoading] = useState(true);
 
