@@ -1,5 +1,6 @@
 import { CircularProgress } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import Navbar from "../components/Navbar";
 import { useQuery } from "../hooks";
@@ -8,6 +9,7 @@ function Confirm() {
   const token = useQuery("token");
   const [loading, setLoading] = useState(true);
   const [seconds, setSeconds] = useState(-1);
+  const [redirect, setRedirect] = useState(false);
 
   console.log({ token });
 
@@ -29,7 +31,7 @@ function Confirm() {
       }, 1000);
 
       if (seconds <= 0) {
-        window.location.href = "/";
+        setRedirect(true);
       }
 
       return () => {
@@ -40,6 +42,7 @@ function Confirm() {
 
   return (
     <>
+      {redirect && <Navigate to="/" />}
       <div className="container">
         <Navbar />
         {loading ? (

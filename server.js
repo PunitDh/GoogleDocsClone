@@ -10,6 +10,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const http = isProduction && require("http").Server(app);
 const { authenticateUser, verifyJWT } = require("./auth");
+const { sendConfirmationEmail, verifyConfirmation } = require("./mailer");
 const port = process.env.PORT || 3010;
 let io;
 
@@ -24,7 +25,7 @@ if (isProduction) {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
   });
   io = require("socket.io")(http);
-  console.log("Web socket connected in production:", io);
+  console.log("Web socket server started in production");
 } else {
   io = require("socket.io")(process.env.PORT || 3001, {
     cors: {
@@ -32,13 +33,13 @@ if (isProduction) {
       methods: ["GET", "POST"],
     },
   });
-  console.log("Web socket connected locally:", io);
+  console.log("Web socket server started locally");
 }
 
 mongoose
   .connect(process.env.MONGODB_URL)
-  .then(() => {
-    console.log("Connected to MongoDB database...");
+  .then((res) => {
+    console.log("Connected to MongoDB database: ", res.connections[0].name);
   })
   .catch((err) => {
     console.log("Failed to connect to MongoDB database", err);
@@ -49,7 +50,7 @@ const defaultValue = "";
 io.on("connection", (socket) => {
   console.log("Web socket connected to socketID:", socket.id);
 
-  socket.on("verify-token", (token) => {
+  socket.on("verify-token", async (token) => {
     const decoded = verifyJWT(token);
     if (decoded) {
       const userData = await User.findById(decoded.id);
@@ -58,7 +59,7 @@ io.on("connection", (socket) => {
         io.to(socket.id).emit("verified-token", user);
       }
     } else {
-      console.log("Failed to verify token", err);
+      console.log("Failed to verify token");
       io.to(socket.id).emit("invalid-token");
     }
   });
@@ -90,14 +91,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("confirm-email", async (token) => {
-    const decoded = verifyJWT(token);
-    if (decoded) {
-      const user = await User.findById(decoded.id);
-      if (user) {
-        user.confirmed = true;
-        await user.save();
-        io.to(socket.id).emit("confirm-email-success");
-      }
+    const confirmed = await verifyConfirmation(token);
+    if (confirmed) {
+      io.to(socket.id).emit("confirm-email-success");
+    } else {
+      console.log("Failed to confirm email");
     }
   });
 
@@ -112,7 +110,7 @@ io.on("connection", (socket) => {
             await user.save();
             io.to(socket.id).emit("change-password-success");
           } catch (err) {
-            console.log("Failed to save user", err);
+            console.log("Failed to save user");
             io.to(socket.id).emit(
               "change-password-failure",
               "Failed to update password"
@@ -123,7 +121,7 @@ io.on("connection", (socket) => {
         }
       }
     } else {
-      console.log("Failed to verify token", err);
+      console.log("Failed to verify token");
       io.to(socket.id).emit("change-password-failure", "User is invalid");
     }
   });
@@ -138,7 +136,7 @@ io.on("connection", (socket) => {
         io.emit("user-deleted", deletedUser, deletedDocuments);
       }
     } else {
-      console.log("Failed to verify token", err);
+      console.log("Failed to verify token");
       io.to(socket.id).emit("delete-permanently-failure", "User is invalid");
     }
   });
@@ -194,7 +192,11 @@ io.on("connection", (socket) => {
       });
       try {
         const userData = await newUser.save();
+
+        console.log("From registration", { userData });
         const { jwt, user } = authenticateUser(userData);
+
+        sendConfirmationEmail(userData);
 
         io.to(socket.id).emit("user-registered-success", jwt, user);
       } catch (err) {

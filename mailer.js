@@ -1,11 +1,13 @@
 const nodemailer = require("nodemailer");
+const fs = require("fs");
+const ejs = require("ejs");
+const path = require("path");
 const User = require("./models/User");
 const { v4: uuid } = require("uuid");
 const { authenticateUser } = require("./auth");
+const JWT = require("jsonwebtoken");
 
-async function sendConfirmationEmail(userId) {
-  const userData = await User.findById(userId);
-  if (!userData) return;
+async function sendConfirmationEmail(userData) {
   const { jwt, confirmationToken } = getConfirmationEmailToken(userData);
 
   userData.confirmationToken = confirmationToken;
@@ -19,34 +21,36 @@ async function sendConfirmationEmail(userId) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
+      type: "OAuth2",
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+      accessToken: process.env.GOOGLE_ACCESS_TOKEN,
+      expires: process.env.GOOGLE_EXPIRY_DATE,
     },
   });
 
+  const emailFile = fs.readFileSync(
+    path.join(__dirname, "views", "confirm-email.ejs"),
+    "utf8"
+  );
+
   const mailOptions = {
-    from: '"Docs" <' + process.env.EMAIL_USER + ">",
-    subject: "Docs: Please confirm your account",
-    html: `<p>Please confirm your account by clicking this link: <a href="${process.env.FRONTEND_URL}/confirm-account?token=${jwt}">Confirm account</a></p>`,
+    from: '"PunitDh Docs" <' + process.env.EMAIL_USER + ">",
+    subject: "PunitDh Docs: Please confirm your account",
+    html: ejs.render(emailFile, {
+      url: process.env.FRONTEND_URL,
+      token: jwt,
+    }),
     to: userData.email,
   };
 
-  transporter.use(
-    "compile",
-    (mail, callback) => {
-      const compiled = mail.compile();
-      callback(null, compiled);
-    },
-    {
-      maxRetries: 1,
-    }
-  );
-
   transporter.sendMail(mailOptions, (err, info) => {
     if (err) {
-      return false;
+      console.log(err);
     } else {
-      return true;
+      console.log("Confirmation email sent to:", userData.email, info.response);
     }
   });
 }
