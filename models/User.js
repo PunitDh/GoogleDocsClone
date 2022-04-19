@@ -32,6 +32,16 @@ const User = new Schema(
       type: String,
       required: false,
     },
+    resetPasswordToken: {
+      type: String,
+      required: false,
+      expires: "1h",
+    },
+    resetPasswordWebToken: {
+      type: String,
+      required: false,
+      expires: "1h",
+    },
   },
   { timestamps: true }
 );

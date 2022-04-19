@@ -3,19 +3,18 @@ import React, { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import "./account.css";
 import { io } from "socket.io-client";
-import { authenticateUser, validatePassword } from "./auth/auth";
 import Notification from "./components/Notification";
-import { NotificationType } from "./hooks";
-import bcrypt from "bcryptjs";
+import { useNotification } from "./hooks";
 import JWTDecode from "jwt-decode";
 import Dialog from "./components/Dialog";
 import { Navigate } from "react-router-dom";
 import AccountPasswordField from "./auth/AccountPasswordField";
+import { generateHashedPassword, validatePassword } from "./auth/utils";
 
 function Account({ token }) {
   const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [notification, setNotification] = useState(null);
+  const notification = useNotification();
   const [showModal, setShowModal] = useState(false);
   const [accountDeleted, setAccountDeleted] = useState(false);
   const currentUser = JWTDecode(token);
@@ -49,17 +48,11 @@ function Account({ token }) {
     );
 
     socket.on("update-account-success", () => {
-      setNotification({
-        message: "Account updated successfully",
-        type: NotificationType.SUCCESS,
-      });
+      notification.set("Account updated successfully", notification.SUCCESS);
     });
 
-    socket.on("update-account-failure", (message) => {
-      setNotification({
-        message,
-        type: NotificationType.ERROR,
-      });
+    socket.on("update-account-failure", (error) => {
+      notification.set(error, notification.ERROR);
     });
   };
 
@@ -69,43 +62,25 @@ function Account({ token }) {
     const newPassword = e.target.newPassword.value;
     const newPasswordConfirmation = e.target.newPasswordConfirmation.value;
 
-    const isValidPassword = validatePassword(
-      newPassword,
-      newPasswordConfirmation
-    );
-
-    if (isValidPassword.error) {
-      setNotification({
-        message: isValidPassword.error,
-        type: NotificationType.ERROR,
-      });
+    if (!validatePassword(newPassword, newPasswordConfirmation, notification)) {
       return;
     }
-
-    const salt = bcrypt.genSaltSync(10);
-    const hashedNewPassword = bcrypt.hashSync(newPassword, salt);
 
     socket.emit(
       "change-password",
       {
         oldPassword,
-        newPassword: hashedNewPassword,
+        newPassword: generateHashedPassword(newPassword),
       },
       token
     );
 
     socket.on("change-password-success", (message) => {
-      setNotification({
-        message,
-        type: NotificationType.SUCCESS,
-      });
+      notification.set(message, notification.SUCCESS);
     });
 
     socket.on("change-password-failure", (message) => {
-      setNotification({
-        message,
-        type: NotificationType.ERROR,
-      });
+      notification.set(message, notification.ERROR);
     });
   };
 
@@ -114,10 +89,7 @@ function Account({ token }) {
     setShowModal(false);
     socket.emit("delete-permanently", token);
     socket.on("user-deleted", (message) => {
-      setNotification({
-        message,
-        type: NotificationType.SUCCESS,
-      });
+      notification.set(message, notification.SUCCESS);
 
       setTimeout(() => {
         setAccountDeleted(true);
@@ -125,22 +97,13 @@ function Account({ token }) {
     });
 
     socket.on("delete-permanently-failure", (message) => {
-      setNotification({
-        message,
-        type: NotificationType.ERROR,
-      });
+      notification.set(message, notification.SUCCESS);
     });
   };
 
   return (
     <>
-      {notification && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          setNotification={setNotification}
-        />
-      )}
+      <Notification notification={notification} />
       {accountDeleted && <Navigate to="/logout" />}
       {
         <Dialog

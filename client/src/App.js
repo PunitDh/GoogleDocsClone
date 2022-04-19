@@ -14,7 +14,10 @@ import JWTDecode from "jwt-decode";
 import Logout from "./auth/Logout";
 import Account from "./Account";
 import Confirm from "./auth/Confirm";
-import { authenticateUser } from "./auth/auth";
+import { authenticateUser } from "./auth/utils";
+import Forgot from "./auth/Forgot";
+import Reset from "./auth/Reset";
+import Template from "./Template";
 
 function App() {
   const [socket, setSocket] = useState();
@@ -105,6 +108,11 @@ function App() {
         <Route
           path="/confirm-account"
           element={<Confirm setToken={setToken} />}
+        />
+        <Route path="/forgot-password" element={<Forgot socket={socket} />} />
+        <Route
+          path="/reset-password"
+          element={<Reset socket={socket} setToken={setToken} />}
         />
         <Route path="/logout/" element={<Logout setToken={setToken} />} />
       </Routes>

@@ -2,16 +2,24 @@ import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import { useLocation } from "react-router-dom";
 
-export const useNotification = ({ message, type }) => {
-  const [notification, setNotification] = useState(null);
+export const useNotification = () => {
+  const [notification, setNotification] = useState({
+    message: null,
+    type: null,
+    duration: 5000,
+  });
 
-  useEffect(() => {
-    if (message) {
-      setNotification({ message, type });
-    }
-  }, [message, type]);
-
-  return [notification, setNotification];
+  return {
+    message: notification.message,
+    type: notification.type,
+    duration: notification.duration,
+    set: (message, type, duration = 5000) =>
+      setNotification({ message, type, duration }),
+    SUCCESS: "success",
+    ERROR: "error",
+    WARNING: "warning",
+    DISABLED: "disabled",
+  };
 };
 
 export const useQuery = (queryName) =>
@@ -28,11 +36,4 @@ export const useSocket = () => {
   }, []);
 
   return socket;
-};
-
-export const NotificationType = {
-  ERROR: "error",
-  SUCCESS: "success",
-  WARNING: "warning",
-  DISABLE: "disable",
 };

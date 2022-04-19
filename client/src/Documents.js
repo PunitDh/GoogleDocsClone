@@ -9,14 +9,14 @@ import CircularProgress from "@mui/material/CircularProgress";
 import JWTDecode from "jwt-decode";
 import Notification from "./components/Notification";
 import Tooltip from "./components/Tooltip";
-import { NotificationType } from "./hooks";
+import { useNotification } from "./hooks";
 
 function Documents({ token }) {
   const [documents, setDocuments] = useState([]);
   const [search, setSearch] = useState("");
   const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [notification, setNotification] = useState(null);
+  const notification = useNotification();
 
   const currentUser = JWTDecode(token);
 
@@ -58,7 +58,7 @@ function Documents({ token }) {
   }, []);
 
   useEffect(() => {
-    if (socket) {
+    if (socket?.connected) {
       socket.on("document-deleted", (documentId) => {
         setDocuments(
           documents.filter((document) => document._id !== documentId)
@@ -66,10 +66,7 @@ function Documents({ token }) {
       });
 
       socket.on("unauthorized-document-delete", (message) => {
-        setNotification({
-          message,
-          type: NotificationType.ERROR,
-        });
+        notification.set(message, notification.ERROR);
       });
     }
   }, [documents]);
@@ -96,9 +93,7 @@ function Documents({ token }) {
 
   return (
     <>
-      {notification && (
-        <Notification {...notification} setNotification={setNotification} />
-      )}
+      <Notification notification={notification} />
       <div className="container">
         <Navbar
           token={token}

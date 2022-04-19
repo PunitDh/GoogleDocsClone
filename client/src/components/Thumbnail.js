@@ -18,7 +18,7 @@ function Thumbnail({
   const [showModal, setShowModal] = useState(false);
 
   const handleDelete = () => {
-    if (socket) {
+    if (socket?.connected) {
       socket.emit("delete-document", documentId);
       setShowModal(false);
     }

@@ -9,11 +9,13 @@ function authenticateUser(userData) {
     confirmed: userData.confirmed,
   };
 
-  const jwt = JWT.sign(currentUser, process.env.JWT_SECRET, {
-    expiresIn: "24h",
-  });
+  return { jwt: `Bearer ${generateJWT(currentUser)}`, user: currentUser };
+}
 
-  return { jwt: `Bearer ${jwt}`, user: currentUser };
+function generateJWT(userData, expiresIn = "1d") {
+  return JWT.sign(userData, process.env.JWT_SECRET, {
+    expiresIn,
+  });
 }
 
 function verifyJWT(token) {
@@ -24,4 +26,4 @@ function verifyJWT(token) {
   }
 }
 
-module.exports = { authenticateUser, verifyJWT };
+module.exports = { authenticateUser, generateJWT, verifyJWT };

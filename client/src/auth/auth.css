@@ -71,6 +71,19 @@
   gap: 0.25rem;
 }
 
+.code-input {
+  transition: all 1.5s ease-in-out;
+}
+
+.form-helper-text {
+  color: #444;
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+  width: 60%;
+  text-align: right;
+}
+
 .form-link {
   color: #333;
   cursor: pointer;
@@ -114,6 +127,13 @@
   .auth-main section h1 {
     text-shadow: none;
   }
+}
+
+.auth-screen-left-section {
+  background-image: url('../assets/logo512.png');
+  background-size: contain;
+  background-blend-mode:lighten;
+  background-repeat: no-repeat;
 }
 
 .logout-message {

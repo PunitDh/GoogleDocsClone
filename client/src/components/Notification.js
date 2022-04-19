@@ -1,30 +1,37 @@
 import React, { useEffect } from "react";
-import { NotificationType } from "../hooks";
+
 import DoneIcon from "@mui/icons-material/Done";
 import CancelIcon from "@mui/icons-material/Cancel";
 import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
 import "./notification.css";
 
-function Notification({ message, type, setNotification }) {
-  const handleClose = (time = 5000) => {
-    setTimeout(() => {
-      setNotification(false);
+function Notification({ notification }) {
+  let timeout;
+  const handleClose = (time = notification.duration) => {
+    timeout = setTimeout(() => {
+      notification.set(false);
     }, time);
   };
 
   useEffect(() => {
     handleClose();
-  }, [message, type]);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [notification.message, notification.type]);
 
   return (
-    <div className={`notification-container ${type}`}>
-      <div className="notification-icon" onClick={() => handleClose(0)}>
-        {type === NotificationType.SUCCESS && <DoneIcon />}
-        {type === NotificationType.ERROR && <CancelIcon />}
-        {type === NotificationType.WARNING && <PriorityHighIcon />}
+    notification.message && (
+      <div className={`notification-container ${notification.type}`}>
+        <div className="notification-icon" onClick={() => handleClose(0)}>
+          {notification.type === notification.SUCCESS && <DoneIcon />}
+          {notification.type === notification.ERROR && <CancelIcon />}
+          {notification.type === notification.WARNING && <PriorityHighIcon />}
+        </div>
+        {notification.message}
       </div>
-      {message}
-    </div>
+    )
   );
 }
 

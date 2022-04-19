@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import ArticleTwoToneIcon from "@mui/icons-material/ArticleTwoTone";
+import DocumentIcon from "../assets/logo512.png";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import ManageAccountMenu from "./ManageAccountMenu";
 import { Link } from "react-router-dom";
@@ -26,9 +26,10 @@ function Navbar({ search, handleSearch, token, currentUser }) {
     <nav>
       <div className="icon-container">
         <Link to="/documents">
-          <ArticleTwoToneIcon
+          <img
             className="document-icon"
-            style={{ fontSize: "2.5rem" }}
+            src={DocumentIcon}
+            title="Punit Dh Docs"
           />
         </Link>
       </div>
