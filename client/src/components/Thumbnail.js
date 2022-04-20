@@ -4,9 +4,11 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import "../documents.css";
 import "./thumbnail.css";
 import Dialog from "./Dialog";
+import { JWTDecode } from "../auth/utils";
 
 function Thumbnail({
   link,
+  ownerId,
   display,
   title,
   author,
@@ -14,13 +16,16 @@ function Thumbnail({
   visible,
   documentId,
   socket,
-  userId,
+  token,
 }) {
   const [showModal, setShowModal] = useState(false);
+  console.log({ token });
+
+  const currentUser = token && JWTDecode(token);
 
   const handleDelete = () => {
     if (socket?.connected) {
-      socket.emit("delete-document", documentId, userId);
+      socket.emit("delete-document", documentId, currentUser.id, token);
       setShowModal(false);
     }
   };
@@ -31,7 +36,7 @@ function Thumbnail({
         <Link to={link} className={create ? "document" : "thumbnail-content"}>
           <pre>{display}</pre>
         </Link>
-        {!create && (
+        {!create && (currentUser.superUser || ownerId === currentUser.id) && (
           <DeleteForeverIcon
             className="delete-icon"
             onClick={() => setShowModal(true)}

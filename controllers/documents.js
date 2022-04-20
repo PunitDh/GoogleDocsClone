@@ -60,11 +60,15 @@ class DocumentsController {
     });
   }
 
-  async deleteDocument(documentId, userId) {
+  async deleteDocument(documentId, userId, token) {
     console.log("Deleting document");
     const user = await userDAO.getUser(userId);
+    const decoded = authService.verifyToken(token);
 
-    if (user?.superUser || user?._id === documentId.userId) {
+    if (
+      user?.superUser ||
+      (user?._id === documentId.userId && decoded?.id === userId)
+    ) {
       const deleted = await documentDAO.deleteDocument(documentId);
       console.log("Document deleted", deleted);
       return {

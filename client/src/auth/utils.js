@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import jwtDecode from "jwt-decode";
 
 export const generateHashedPassword = (password) => {
   const salt = bcrypt.genSaltSync(Number(process.env.REACT_APP_SALT_ROUNDS));
@@ -9,9 +10,13 @@ export function authenticateUser(jwt, setToken) {
   if (jwt) {
     localStorage.setItem(process.env.REACT_APP_TOKEN_NAME, jwt);
     setToken(jwt);
-    return true;
+    return jwt;
   }
   return false;
+}
+
+export function JWTDecode(jwt) {
+  return jwt && jwtDecode(jwt.split(" ")[1]);
 }
 
 export function validatePassword(password, confirmationPassword, notification) {

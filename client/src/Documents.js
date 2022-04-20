@@ -6,7 +6,7 @@ import Thumbnail from "./components/Thumbnail";
 import { io } from "socket.io-client";
 import Navbar from "./components/Navbar";
 import CircularProgress from "@mui/material/CircularProgress";
-import JWTDecode from "jwt-decode";
+import { JWTDecode } from "./auth/utils";
 import Notification from "./components/Notification";
 import Tooltip from "./components/Tooltip";
 import { useNotification } from "./hooks";
@@ -140,6 +140,7 @@ function Documents({ token }) {
                 {documents.map((doc) => (
                   <Thumbnail
                     key={doc._id}
+                    ownerId={doc.userId}
                     documentId={doc._id}
                     link={`/documents/${doc._id}`}
                     display={doc.data}
@@ -147,7 +148,7 @@ function Documents({ token }) {
                     author={doc.author}
                     visible={doc.visible}
                     socket={socket}
-                    userId={currentUser.id}
+                    token={token}
                   />
                 ))}
               </div>

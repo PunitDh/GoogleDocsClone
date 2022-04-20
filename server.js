@@ -189,8 +189,12 @@ io.on("connection", (socket) => {
     return emitToSocket("reset-password-failure", resetPassword.message);
   });
 
-  socket.on("delete-document", async (document, userId) => {
-    const deleted = await documentsController.deleteDocument(document, userId);
+  socket.on("delete-document", async (document, userId, token) => {
+    const deleted = await documentsController.deleteDocument(
+      document,
+      userId,
+      token
+    );
     if (deleted.success) {
       return emitToSocket(
         "document-deleted",

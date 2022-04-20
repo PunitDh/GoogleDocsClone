@@ -10,7 +10,7 @@ import {
 import Documents from "./Documents";
 import Login from "./auth/Login";
 import Register from "./auth/Register";
-import JWTDecode from "jwt-decode";
+import { JWTDecode } from "./auth/utils";
 import Logout from "./auth/Logout";
 import Account from "./Account";
 import Confirm from "./auth/Confirm";
@@ -34,6 +34,7 @@ function App() {
 
     if (token) {
       authenticateUser(token, setToken);
+      setCurrentUser(JWTDecode(token));
     } else {
       setCurrentUser(null);
     }

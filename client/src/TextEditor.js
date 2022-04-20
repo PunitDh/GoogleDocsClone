@@ -7,7 +7,7 @@ import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import { useQuery, useNotification } from "./hooks";
 import { CircularProgress } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
-import JWTDecode from "jwt-decode";
+import { JWTDecode } from "./auth/utils";
 import Notification from "./components/Notification";
 
 const SAVE_INTERVAL_MS = 10000;

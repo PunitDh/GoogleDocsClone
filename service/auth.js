@@ -10,6 +10,7 @@ class AuthService {
       lastName: userData.lastName,
       id: userData._id,
       confirmed: userData.confirmed,
+      superUser: userData.superUser,
     };
 
     return {
