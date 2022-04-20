@@ -59,10 +59,11 @@ function Documents({ token }) {
 
   useEffect(() => {
     if (socket?.connected) {
-      socket.on("document-deleted", (documentId) => {
+      socket.on("document-deleted", (documentId, message) => {
         setDocuments(
           documents.filter((document) => document._id !== documentId)
         );
+        notification.set(message, notification.SUCCESS);
       });
 
       socket.on("unauthorized-document-delete", (message) => {
@@ -136,16 +137,17 @@ function Documents({ token }) {
             <section>
               <h3>Recent documents</h3>
               <div className="content">
-                {documents.map((document) => (
+                {documents.map((doc) => (
                   <Thumbnail
-                    key={document._id}
-                    documentId={document._id}
-                    link={`/documents/${document._id}`}
-                    display={document.data}
-                    title={document.title}
-                    author={document.author}
-                    visible={document.visible}
+                    key={doc._id}
+                    documentId={doc._id}
+                    link={`/documents/${doc._id}`}
+                    display={doc.data}
+                    title={doc.title}
+                    author={doc.author}
+                    visible={doc.visible}
                     socket={socket}
+                    userId={currentUser.id}
                   />
                 ))}
               </div>

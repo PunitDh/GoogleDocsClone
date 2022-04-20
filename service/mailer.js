@@ -2,9 +2,9 @@ const nodemailer = require("nodemailer");
 const fs = require("fs");
 const ejs = require("ejs");
 const path = require("path");
-const User = require("./models/User");
+const User = require("../models/User");
 const { v4: uuid } = require("uuid");
-const { authenticateUser, generateJWT } = require("./auth");
+const { authenticateUser, generateJWT } = require("../auth");
 const JWT = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
