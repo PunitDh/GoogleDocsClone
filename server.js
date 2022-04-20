@@ -23,7 +23,7 @@ if (isProduction) {
     })
   );
 
-  app.use(express.static(path.join(__dirname, "../client/build")));
+  app.use(express.static(path.join(__dirname, "..", "client", "build")));
   app.enable("trust proxy");
   console.log("Enabling proxy");
   const secureRedirect = (req, res) => {
