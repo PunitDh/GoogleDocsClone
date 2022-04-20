@@ -66,7 +66,7 @@ function Forgot({ socket }) {
           <LeftSection />
           <section>
             <form onSubmit={code ? handleCode : handleForgot}>
-              <h2>Enter your email address to reset your password</h2>
+              <h2>Reset your password</h2>
               <input
                 type="email"
                 name="email"
@@ -82,6 +82,8 @@ function Forgot({ socket }) {
                     className="user-input code-input"
                     placeholder="Your 6-digit code"
                     autoComplete="off"
+                    max={999999}
+                    min={100000}
                     maxLength={6}
                   />
                   <div className="form-helper-text">

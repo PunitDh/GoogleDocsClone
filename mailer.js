@@ -19,7 +19,7 @@ async function sendConfirmationEmail(userData) {
     console.log("Failed to save confirmation email token", err);
   }
 
-  sendMail(
+  sendEmail(
     "confirm-email.ejs",
     userData.email,
     "Please confirm your account",
@@ -50,7 +50,7 @@ async function sendForgotPasswordEmail(userData) {
   userData.resetPasswordToken = bcrypt.hashSync(code, salt);
   await userData.save();
 
-  sendMail(
+  sendEmail(
     "forgot-password.ejs",
     userData.email,
     `${code} is your code to reset your password`,
@@ -77,7 +77,7 @@ async function confirmUserAccount(token) {
   }
 }
 
-function sendMail(emailTemplate, to, subject, data = {}, loggingInfo = "") {
+function sendEmail(emailTemplate, to, subject, data = {}, loggingInfo = "") {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -116,4 +116,5 @@ module.exports = {
   sendConfirmationEmail,
   confirmUserAccount,
   sendForgotPasswordEmail,
+  sendEmail,
 };

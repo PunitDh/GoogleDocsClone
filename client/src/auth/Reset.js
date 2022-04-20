@@ -70,7 +70,7 @@ function Reset({ socket, setToken }) {
           <LeftSection />
           <section>
             <form onSubmit={handleReset}>
-              <h2>Enter your new password</h2>
+              <h2>Enter new password</h2>
               <div className="form-helper-text">
                 Your password must be at least 8 characters long and must
                 contain at least one uppercase character

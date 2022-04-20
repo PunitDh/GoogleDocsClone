@@ -15,6 +15,7 @@ const {
   sendConfirmationEmail,
   confirmUserAccount,
   sendForgotPasswordEmail,
+  sendEmail,
 } = require("./mailer");
 const port = process.env.PORT || 3010;
 let io;
@@ -23,12 +24,23 @@ console.log({ isProduction });
 console.log("Server starting...");
 
 if (isProduction) {
-  app.use(cors());
+  app.use(
+    cors({
+      origin: process.env.FRONTEND_URL,
+      methods: ["GET", "POST"],
+    })
+  );
   app.use(express.static(__dirname));
   app.use(express.static(path.join(__dirname, "client", "build")));
+  app.enable("trust proxy");
+  console.log("Enabling proxy");
+  app.use((req, res, next) => {
+    req.secure ? next() : res.redirect("https://" + req.headers.host + req.url);
+  });
   app.get("*", (_, res) => {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
   });
+
   io = require("socket.io")(http);
   console.log("Web socket server started in production");
 } else {
@@ -365,6 +377,13 @@ io.on("connection", (socket) => {
             "Password changed successfully",
             jwt
           );
+          sendEmail(
+            "password-reset-successful.ejs",
+            userData.email,
+            "Password change successful",
+            {},
+            "Password reset successful"
+          );
           console.log("Password changed successfully");
         } catch (err) {
           console.log("Failed to reset password", err);
@@ -414,6 +433,10 @@ io.on("connection", (socket) => {
       console.log("Failed to verify token");
       io.to(socket.id).emit("delete-permanently-failure", "User is invalid");
     }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected", socket);
   });
 });
 
