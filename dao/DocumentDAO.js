@@ -10,18 +10,20 @@ class DocumentDAO {
   }
 
   async getDocumentsByUserId(userId) {
-    const documents = await this.getDocumentsByParams({
+    const documents = await Document.find({
       userId,
       public: false,
-    });
-
-    const publicDocuments = await this.getDocumentsByParams({
-      public: true,
-    });
-
-    documents.push(...publicDocuments).sort({
+    }).sort({
       updatedAt: -1,
     });
+
+    const publicDocuments = await Document.find({
+      public: true,
+    }).sort({
+      updatedAt: -1,
+    });
+
+    documents.push(...publicDocuments);
 
     return documents;
   }
