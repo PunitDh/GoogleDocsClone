@@ -93,6 +93,7 @@
 .form-link {
   color: #333;
   cursor: pointer;
+  text-align: right;
 }
 
 .password-container {
@@ -115,7 +116,7 @@
   color: #02153d;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 768px) {
   .auth-main {
     flex-direction: column;
     align-items: center;
@@ -124,6 +125,7 @@
 
   .auth-main section {
     width: 100%;
+    gap: 0.5rem;
   }
 
   .auth-screen-left-section {
@@ -137,7 +139,32 @@
   .auth-screen-left-section h1 {
     text-shadow: 0 0 0 rgba(0,0,0,0)
   }
+
+  .auth-main section form h2 {
+    text-align: center;
+  }
+
+  .auth-main section form .form-links-container {
+    width: 100%;
+    align-items: center;
+  }
+
+  .auth-screen-left-section h1, .auth-screen-left-section h3 {
+    text-align: center;
+    margin: 0 auto;
+  }
 }
+
+@media screen and (max-width: 300px) {
+  .auth-screen-left-section {
+    height: 100%;
+  }
+
+  .auth-main section:nth-child(2) {
+    height: 50%;
+  }
+}
+
 
 .auth-screen-left-section {
   background-image: url('../assets/logo512.png');
