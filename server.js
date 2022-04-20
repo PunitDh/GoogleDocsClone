@@ -120,6 +120,7 @@ io.on("connection", (socket) => {
         title,
       });
       console.log("Document saved", save);
+      socket.emit("document-saved", "Document saved");
     });
 
     socket.on("set-title", async (title) => {

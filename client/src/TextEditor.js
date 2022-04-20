@@ -4,9 +4,11 @@ import "quill/dist/quill.snow.css";
 import { io } from "socket.io-client";
 import { Navigate, useParams } from "react-router-dom";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
-import { useQuery } from "./hooks";
+import { useQuery, useNotification } from "./hooks";
 import { CircularProgress } from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
 import JWTDecode from "jwt-decode";
+import Notification from "./components/Notification";
 
 const SAVE_INTERVAL_MS = 10000;
 const TOOLBAR_OPTIONS = [
@@ -23,6 +25,7 @@ const TOOLBAR_OPTIONS = [
 
 function TextEditor({ socket, setSocket, token }) {
   const { id: documentId } = useParams();
+  const notification = useNotification();
   const query = useQuery("public");
   const [quill, setQuill] = useState(null);
   const [title, setTitle] = useState(`Document ${documentId}`);
@@ -50,6 +53,9 @@ function TextEditor({ socket, setSocket, token }) {
     const s = io(process.env.REACT_APP_SERVER_URL);
     setSocket(s);
     window.scrollTo(0, 0);
+    s.on("document-saved", (message) => {
+      notification.set(message, notification.SUCCESS);
+    });
     return () => {
       s.disconnect();
     };
@@ -139,42 +145,61 @@ function TextEditor({ socket, setSocket, token }) {
   }, []);
 
   return (
-    <div className="container">
-      {close && <Navigate to="/documents" />}
-      {loading ? (
-        <div className="loading-bar">
-          <CircularProgress />
-        </div>
-      ) : (
-        <div className="document-title-container">
-          <input
-            className="document-title"
-            type="text"
-            value={title}
-            onChange={handleTitleChange}
-            onBlur={saveTitle}
-            title="Rename document"
-          />
-          <div className="privacy-change-container">
+    <>
+      <Notification notification={notification} />
+      <div className="container">
+        {close && <Navigate to="/documents" />}
+        {loading ? (
+          <div className="loading-bar">
+            <CircularProgress />
+          </div>
+        ) : (
+          <div className="document-title-container">
             <input
-              type="checkbox"
-              id="public"
-              checked={publicDocument}
-              onChange={handlePrivacyChange}
-            />{" "}
-            <label htmlFor="public">Public?</label>
+              className="document-title"
+              type="text"
+              value={title}
+              onChange={handleTitleChange}
+              onBlur={saveTitle}
+              title="Rename document"
+            />
+            <div
+              className="button-icon"
+              title="Save document"
+              onClick={saveDocument}
+            >
+              <SaveIcon />
+            </div>
+            <div
+              className="privacy-change-container"
+              title={`Change privacy to ${
+                publicDocument ? "private" : "public"
+              }`}
+            >
+              <input
+                type="checkbox"
+                id="public"
+                checked={publicDocument}
+                onChange={handlePrivacyChange}
+              />{" "}
+              <label htmlFor="public">Public?</label>
+            </div>
+            <div
+              onClick={closeDocument}
+              title="Save and close"
+              className="button-icon"
+            >
+              <CloseTwoToneIcon />
+            </div>
           </div>
-          <div onClick={closeDocument} className="button-icon">
-            <CloseTwoToneIcon />
-          </div>
-        </div>
-      )}
+        )}
 
-      <div
-        className={`container ${loading && "container-hidden"}`}
-        ref={wrapperRef}
-      ></div>
-    </div>
+        <div
+          className={`container ${loading && "container-hidden"}`}
+          ref={wrapperRef}
+        ></div>
+      </div>
+    </>
   );
 }
 
