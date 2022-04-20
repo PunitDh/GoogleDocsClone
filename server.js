@@ -26,12 +26,12 @@ if (isProduction) {
   app.use(express.static(path.join(__dirname, "../client/build")));
   app.enable("trust proxy");
   console.log("Enabling proxy");
-  const secureRedirect = (res) => {
+  const secureRedirect = (req, res) => {
     console.log("Insecure connection found. Redirecting to secure connection.");
     res.redirect("https://" + req.headers.host + req.url);
   };
   app.use((req, res, next) => {
-    req.secure ? next() : secureRedirect(res);
+    req.secure ? next() : secureRedirect(req, res);
   });
   app.get("*", (_, res) => {
     res.sendFile(path.join(__dirname, "client", "build", "index.html"));
