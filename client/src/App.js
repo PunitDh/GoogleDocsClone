@@ -17,7 +17,6 @@ import Confirm from "./auth/Confirm";
 import { authenticateUser } from "./auth/utils";
 import Forgot from "./auth/Forgot";
 import Reset from "./auth/Reset";
-import Template from "./Template";
 
 function App() {
   const [socket, setSocket] = useState();
@@ -39,16 +38,18 @@ function App() {
       setCurrentUser(null);
     }
 
-    s.emit("verify-token", token);
-    s.on("verified-token", (currentUser) => {
-      setCurrentUser(currentUser);
-    });
+    if (s.connected) {
+      s.emit("verify-token", token);
+      s.on("verified-token", (currentUser) => {
+        setCurrentUser(currentUser);
+      });
 
-    s.on("invalid-token", () => {
-      setToken(null);
-      localStorage.removeItem(process.env.REACT_APP_TOKEN_NAME);
-      setCurrentUser(null);
-    });
+      s.on("invalid-token", () => {
+        setToken(null);
+        localStorage.removeItem(process.env.REACT_APP_TOKEN_NAME);
+        setCurrentUser(null);
+      });
+    }
 
     return () => s.disconnect();
   }, [token]);

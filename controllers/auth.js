@@ -1,27 +1,21 @@
-const { verifyJWT, authenticateUser, generateJWT } = require("../auth");
-const User = require("../models/User");
-const bcrypt = require("bcrypt");
-const {
-  sendConfirmationEmail,
-  sendForgotPasswordEmail,
-  sendEmail,
-} = require("../service/mailer");
 const userDAO = require("../dao/UserDAO");
+const mailerService = require("../service/mailer");
+const authService = require("../service/auth");
 
 class AuthController {
   async verifyToken(token) {
-    const decoded = verifyJWT(token);
+    const decoded = authService.verifyToken(token);
     if (decoded) {
       const userData = await userDAO.getUser(decoded.id);
-      const { user } = authenticateUser(userData);
+      const { user } = authService.authenticateUser(userData);
       return user && userData;
     }
   }
 
   async confirmUserAccount(token) {
-    const confirmedUser = await confirmUserAccount(token);
+    const confirmedUser = await authService.confirmUserAccount(token);
     if (confirmedUser) {
-      const { jwt } = authenticateUser(confirmedUser);
+      const { jwt } = authService.authenticateUser(confirmedUser);
       return jwt;
     }
     console.log("Failed to confirm email");
@@ -36,10 +30,10 @@ class AuthController {
       try {
         const userData = await userDAO.createUser(user);
 
-        const { jwt } = authenticateUser(userData);
+        const { jwt } = authService.authenticateUser(userData);
         console.log("Email address registered successfully");
 
-        await sendConfirmationEmail(userData);
+        await mailerService.sendConfirmationEmail(userData);
         console.log("Confirmation email sent");
         return {
           message: "Email address registered successfully",
@@ -56,9 +50,9 @@ class AuthController {
   async loginUser(user) {
     const userData = await userDAO.getUserByEmail(user.email);
     if (userData) {
-      if (bcrypt.compareSync(user.password, userData.password)) {
+      if (authService.verifyPassword(user.password, userData.password)) {
         console.log("Login successful");
-        const { jwt } = authenticateUser(userData);
+        const { jwt } = authService.authenticateUser(userData);
         return { jwt, success: true, message: "Login successful" };
       }
       console.log("Wrong password");
@@ -69,7 +63,7 @@ class AuthController {
   }
 
   async updateAccount(currentUser, token) {
-    const decoded = verifyJWT(token);
+    const decoded = authService.verifyToken(token);
     if (decoded) {
       const userData = await userDAO.getUser(currentUser.id);
       if (userData) {
@@ -78,7 +72,7 @@ class AuthController {
         userData.email = currentUser.email;
       }
       try {
-        await userData.save();
+        await userDAO.saveUser(userData);
         return { success: true, message: "Account updated successfully" };
       } catch (err) {
         console.log("Failed to update account", err);
@@ -94,14 +88,16 @@ class AuthController {
   }
 
   async changePassword(passwordObj, token) {
-    const decoded = verifyJWT(token);
+    const decoded = authService.verifyToken(token);
     if (decoded) {
       const user = await userDAO.getUser(decoded.id);
       if (user) {
-        if (bcrypt.compareSync(passwordObj.oldPassword, user.password)) {
+        if (
+          authService.verifyPassword(passwordObj.oldPassword, user.password)
+        ) {
           try {
             user.password = passwordObj.newPassword;
-            await user.save();
+            await userDAO.saveUser(user);
             console.log("Password changed successfully");
             return { message: "Password changed successfully", success: true };
           } catch (err) {
@@ -128,7 +124,7 @@ class AuthController {
     if (userData) {
       console.log("User found");
       try {
-        await sendForgotPasswordEmail(userData);
+        await mailerService.sendForgotPasswordEmail(userData);
         return { message: "Password reset email sent", success: true };
       } catch (err) {
         console.log("Failed to send email", err);
@@ -146,17 +142,17 @@ class AuthController {
     if (userData) {
       console.log("User found");
 
-      if (bcrypt.compareSync(code, userData.resetPasswordToken)) {
+      if (authService.verifyPassword(code, userData.resetPasswordToken)) {
         console.log("Code verified");
         userData.resetPasswordToken = null;
-        userData.resetPasswordWebToken = uuid();
-        const token = generateJWT(
+        userData.resetPasswordWebToken = authService.generateUUID();
+        const token = authService.generateJWT(
           { id: userData._id, uuid: userData.resetPasswordWebToken },
           "1h"
         );
 
         try {
-          await userData.save();
+          await userDAO.saveUser(userData);
           return { message: "Code verified", success: true, token };
         } catch (err) {
           console.log("Failed to save user", err);
@@ -175,21 +171,21 @@ class AuthController {
     }
   }
 
-  verifyResetPasswordCode(token) {
-    return verifyJWT(`t ${token}`);
+  verifyResetPasswordCode(jwt) {
+    return authService.verifyJWT(jwt);
   }
 
-  async resetPassword(password, token) {
-    const decoded = verifyJWT(`t ${token}`);
+  async resetPassword(password, jwt) {
+    const decoded = authService.verifyJWT(jwt);
     if (decoded) {
       const userData = await userDAO.getUser(decoded.id);
       if (userData && userData.resetPasswordWebToken === decoded.uuid) {
         userData.password = password;
         userData.resetPasswordWebToken = null;
         try {
-          await userData.save();
+          await userDAO.saveUser(userData);
           console.log("Password changed successfully");
-          sendEmail(
+          mailerService.sendEmail(
             "password-reset-successful.ejs",
             userData.email,
             "Password change successful",
@@ -200,7 +196,7 @@ class AuthController {
           return {
             message: "Password reset successful",
             success: true,
-            jwt: authenticateUser(userData).jwt,
+            jwt: authService.authenticateUser(userData).jwt,
           };
         } catch (err) {
           console.log("Failed to reset password", err);

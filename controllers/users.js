@@ -1,16 +1,15 @@
-const { verifyJWT } = require("../auth");
-const Document = require("../models/Document");
-const User = require("../models/User");
 const userDAO = require("../dao/UserDAO");
+const documentDAO = require("../dao/DocumentDAO");
+const authService = require("../service/auth");
 
 class UsersController {
   async deletePermanently(token) {
-    const decoded = verifyJWT(token);
+    const decoded = authService.verifyToken(token);
     if (decoded) {
       const userId = decoded.id;
       try {
-        await Document.deleteMany({ userId });
-        await User.findByIdAndDelete(userId);
+        await documentDAO.deleteDocumentsByUserId(userId);
+        await userDAO.deleteUser(userId);
         return { success: true, message: "Account deleted successfully" };
       } catch (err) {
         console.log("Failed to delete user");

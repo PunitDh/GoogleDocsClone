@@ -54,7 +54,7 @@ function Thumbnail({
           confirmationMessage={`Are you sure you want to delete ${title}?`}
           setShowModal={setShowModal}
           showModal={showModal}
-          handleDelete={handleDelete}
+          onYes={handleDelete}
         />
       )}
     </>

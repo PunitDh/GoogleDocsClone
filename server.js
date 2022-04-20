@@ -22,8 +22,8 @@ if (isProduction) {
       methods: ["GET", "POST"],
     })
   );
-  app.use(express.static(__dirname));
-  app.use(express.static(path.join(__dirname, "client", "build")));
+
+  app.use(express.static(path.join(__dirname, "../client/build")));
   app.enable("trust proxy");
   console.log("Enabling proxy");
   const secureRedirect = (res) => {
@@ -194,7 +194,7 @@ io.on("connection", (socket) => {
     if (deleted.success) {
       return emitToSocket(
         "document-deleted",
-        deleted.document,
+        deleted.documentId,
         deleted.message
       );
     }

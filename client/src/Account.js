@@ -4,7 +4,7 @@ import Navbar from "./components/Navbar";
 import "./account.css";
 import { io } from "socket.io-client";
 import Notification from "./components/Notification";
-import { useNotification } from "./hooks";
+import { useNotification, useSocket } from "./hooks";
 import JWTDecode from "jwt-decode";
 import Dialog from "./components/Dialog";
 import { Navigate } from "react-router-dom";
@@ -12,7 +12,7 @@ import AccountPasswordField from "./auth/AccountPasswordField";
 import { generateHashedPassword, validatePassword } from "./auth/utils";
 
 function Account({ token }) {
-  const [socket, setSocket] = useState(null);
+  const socket = useSocket();
   const [loading, setLoading] = useState(true);
   const notification = useNotification();
   const [showModal, setShowModal] = useState(false);
@@ -23,37 +23,34 @@ function Account({ token }) {
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    const s = io(process.env.REACT_APP_SERVER_URL);
-    setSocket(s);
-
-    return () => s.disconnect();
-  }, []);
-
   const handleUpdateAccount = (e) => {
     e.preventDefault();
     const firstName = e.target.firstName.value;
     const lastName = e.target.lastName.value;
     const email = e.target.email.value;
 
-    socket.emit(
-      "update-account",
-      {
-        firstName,
-        lastName,
-        email,
-        id: currentUser.id,
-      },
-      token
-    );
+    if (socket?.connected) {
+      socket.emit(
+        "update-account",
+        {
+          firstName,
+          lastName,
+          email,
+          id: currentUser.id,
+        },
+        token
+      );
 
-    socket.on("update-account-success", () => {
-      notification.set("Account updated successfully", notification.SUCCESS);
-    });
+      socket.on("update-account-success", () => {
+        notification.set("Account updated successfully", notification.SUCCESS);
+      });
 
-    socket.on("update-account-failure", (error) => {
-      notification.set(error, notification.ERROR);
-    });
+      socket.on("update-account-failure", (error) => {
+        notification.set(error, notification.ERROR);
+      });
+    } else {
+      notification.set("Failed to connect to server", notification.ERROR);
+    }
   };
 
   const handleChangePassword = (e) => {
@@ -66,39 +63,47 @@ function Account({ token }) {
       return;
     }
 
-    socket.emit(
-      "change-password",
-      {
-        oldPassword,
-        newPassword: generateHashedPassword(newPassword),
-      },
-      token
-    );
+    if (socket?.connected) {
+      socket.emit(
+        "change-password",
+        {
+          oldPassword,
+          newPassword: generateHashedPassword(newPassword),
+        },
+        token
+      );
 
-    socket.on("change-password-success", (message) => {
-      notification.set(message, notification.SUCCESS);
-    });
+      socket.on("change-password-success", (message) => {
+        notification.set(message, notification.SUCCESS);
+      });
 
-    socket.on("change-password-failure", (message) => {
-      notification.set(message, notification.ERROR);
-    });
+      socket.on("change-password-failure", (message) => {
+        notification.set(message, notification.ERROR);
+      });
+    } else {
+      notification.set("Failed to connect to server", notification.ERROR);
+    }
   };
 
   const handleDeleteAccount = (e) => {
     e.preventDefault();
     setShowModal(false);
-    socket.emit("delete-permanently", token);
-    socket.on("user-deleted", (message) => {
-      notification.set(message, notification.SUCCESS);
+    if (socket?.connected) {
+      socket.emit("delete-permanently", token);
+      socket.on("user-deleted", (message) => {
+        notification.set(message, notification.SUCCESS);
 
-      setTimeout(() => {
-        setAccountDeleted(true);
-      }, 1000);
-    });
+        setTimeout(() => {
+          setAccountDeleted(true);
+        }, 1000);
+      });
 
-    socket.on("delete-permanently-failure", (message) => {
-      notification.set(message, notification.SUCCESS);
-    });
+      socket.on("delete-permanently-failure", (message) => {
+        notification.set(message, notification.SUCCESS);
+      });
+    } else {
+      notification.set("Failed to connect to server", notification.ERROR);
+    }
   };
 
   return (
@@ -112,7 +117,7 @@ function Account({ token }) {
           be permanently deleted. This operation is not reversible."
           setShowModal={setShowModal}
           showModal={showModal}
-          handleDelete={handleDeleteAccount}
+          onYes={handleDeleteAccount}
         />
       }
       <div className="container">

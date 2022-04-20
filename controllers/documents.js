@@ -1,8 +1,6 @@
-const { verifyJWT } = require("../auth");
-const Document = require("../models/Document");
-const User = require("../models/User");
 const userDAO = require("../dao/UserDAO");
 const documentDAO = require("../dao/DocumentDAO");
+const authService = require("../service/auth");
 
 class DocumentsController {
   constructor(io, socket) {
@@ -11,7 +9,7 @@ class DocumentsController {
   }
 
   async getDocuments(token) {
-    const decodedUser = verifyJWT(token);
+    const decodedUser = authService.verifyToken(token);
     if (decodedUser) {
       const user = await userDAO.getUser(decodedUser.id);
       if (!user) return;
@@ -41,7 +39,7 @@ class DocumentsController {
 
     this.socket.on("save-document", async (data, title) => {
       console.log("Saving Document", { userId, documentId });
-      const save = await Document.findByIdAndUpdate(documentId, {
+      const save = await documentDAO.updateDocument(documentId, {
         data,
         title,
       });
@@ -50,26 +48,30 @@ class DocumentsController {
     });
 
     this.socket.on("set-title", async (title) => {
-      const save = await Document.findByIdAndUpdate(documentId, { title });
+      const save = await documentDAO.updateDocument(documentId, { title });
       console.log("Title saved", save);
     });
 
     this.socket.on("change-privacy", async (publicDocument) => {
-      const save = await Document.findByIdAndUpdate(documentId, {
+      const save = await documentDAO.updateDocument(documentId, {
         public: publicDocument,
       });
       console.log("Privacy changed", save);
     });
   }
 
-  async deleteDocument(document, userId) {
+  async deleteDocument(documentId, userId) {
     console.log("Deleting document");
-    const user = await User.findById(userId);
+    const user = await userDAO.getUser(userId);
 
-    if (user?.superUser || user?._id === document.userId) {
-      const deleted = await Document.findByIdAndDelete(document);
+    if (user?.superUser || user?._id === documentId.userId) {
+      const deleted = await documentDAO.deleteDocument(documentId);
       console.log("Document deleted", deleted);
-      return { success: true, message: "Document deleted", document };
+      return {
+        success: true,
+        message: "Document deleted",
+        documentId,
+      };
     } else {
       console.log("User is not authorized to delete this document");
       return {
@@ -81,8 +83,6 @@ class DocumentsController {
 }
 
 async function findOrCreateDocument(documentId, title, publicDocument, userId) {
-  const defaultValue = "";
-
   if (documentId == null) return;
   const document = await documentDAO.getDocument(documentId);
   const user = await userDAO.getUser(userId);
@@ -92,14 +92,12 @@ async function findOrCreateDocument(documentId, title, publicDocument, userId) {
       return document;
     }
   } else {
-    return await Document.create({
-      _id: documentId,
-      data: defaultValue,
+    return await documentDAO.createDocument(
+      documentId,
+      user,
       title,
-      userId,
-      author: `${user.firstName} ${user.lastName}`,
-      public: Boolean(publicDocument),
-    });
+      publicDocument
+    );
   }
 }
 

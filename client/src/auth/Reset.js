@@ -19,6 +19,7 @@ function Reset({ socket, setToken }) {
   useEffect(() => {
     if (!code) {
       setRedirect(true);
+      return;
     } else {
       if (socket?.connected) {
         socket.emit("verify-reset-password-code", code);
@@ -54,6 +55,8 @@ function Reset({ socket, setToken }) {
       socket.on("reset-password-failure", (error) => {
         notification.set(error, notification.ERROR);
       });
+    } else {
+      notification.set("Failed to connect to server", notification.ERROR);
     }
   };
 

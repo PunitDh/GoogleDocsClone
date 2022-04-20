@@ -17,7 +17,15 @@ class UserDAO {
       lastName: user.lastName,
     });
 
-    return await newUser.save();
+    return await this.saveUser(newUser);
+  }
+
+  async deleteUser(userId) {
+    return await User.findByIdAndDelete(userId);
+  }
+
+  async saveUser(user) {
+    return await user.save();
   }
 }
 

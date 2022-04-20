@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 
 export const generateHashedPassword = (password) => {
-  const salt = bcrypt.genSaltSync(10);
+  const salt = bcrypt.genSaltSync(Number(process.env.REACT_APP_SALT_ROUNDS));
   return bcrypt.hashSync(password, salt);
 };
 

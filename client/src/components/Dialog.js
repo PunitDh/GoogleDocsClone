@@ -6,7 +6,7 @@ function Dialog({
   confirmationMessage,
   setShowModal,
   showModal,
-  handleDelete,
+  onYes,
 }) {
   const yesButton = useRef();
   const noButton = useRef();
@@ -51,7 +51,7 @@ function Dialog({
           <button
             id="modal-yes-button"
             className="delete-confirmation-dialog-button"
-            onClick={handleDelete}
+            onClick={onYes}
             tabIndex="0"
             ref={yesButton}
           >

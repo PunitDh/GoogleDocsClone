@@ -31,7 +31,7 @@ function Documents({ token }) {
 
     s.emit("get-documents", token);
 
-    s.on("load-documents", (documents) => {
+    s.once("load-documents", (documents) => {
       setDocuments(
         documents.map((document) => {
           const title = document.title || document._id;

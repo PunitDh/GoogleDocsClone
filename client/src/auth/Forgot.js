@@ -27,6 +27,8 @@ function Forgot({ socket }) {
       socket.on("forgot-password-failure", (error) => {
         notification.set(error, notification.ERROR);
       });
+    } else {
+      notification.set("Failed to connect to server", notification.ERROR);
     }
   };
 
@@ -52,6 +54,8 @@ function Forgot({ socket }) {
       } else {
         notification.set("Please enter your code", notification.ERROR);
       }
+    } else {
+      notification.set("Failed to connect to server", notification.ERROR);
     }
   };
 

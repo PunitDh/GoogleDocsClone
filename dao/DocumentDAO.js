@@ -29,6 +29,31 @@ class DocumentDAO {
   async getDocumentsByParams(params) {
     return await Document.find(params);
   }
+
+  async createDocument(documentId, user, title, publicDocument) {
+    const defaultValue = "";
+
+    return await Document.create({
+      _id: documentId,
+      data: defaultValue,
+      title,
+      userId: user._id,
+      author: `${user.firstName} ${user.lastName}`,
+      public: Boolean(publicDocument),
+    });
+  }
+
+  async updateDocument(documentId, data) {
+    return await Document.findByIdAndUpdate(documentId, data);
+  }
+
+  async deleteDocument(documentId) {
+    return await Document.findByIdAndDelete(documentId);
+  }
+
+  async deleteDocumentsByUserId(userId) {
+    return await Document.deleteMany({ userId });
+  }
 }
 
 module.exports = new DocumentDAO();

@@ -20,6 +20,8 @@ function Logout({ setToken }) {
         clearInterval(dotInterval);
       }, 1000);
     }
+
+    return () => clearInterval(dotInterval);
   }, []);
 
   return (

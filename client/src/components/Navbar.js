@@ -43,6 +43,7 @@ function Navbar({ search, handleSearch, token, currentUser }) {
               value={search}
               onChange={handleSearch}
               placeholder="Search"
+              title="Search anything"
             />
           </>
         )}
@@ -52,6 +53,7 @@ function Navbar({ search, handleSearch, token, currentUser }) {
           <div
             ref={manageAccountMenuRef}
             className="manage-account-link"
+            title="Your Account"
             onClick={() => setShowMenu(true)}
           >
             {currentUser &&
