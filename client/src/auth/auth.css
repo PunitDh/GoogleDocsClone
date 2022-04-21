@@ -116,6 +116,12 @@
   color: #02153d;
 }
 
+.thin-line {
+  border: 1px solid rgba(0,0,0,0.2);
+  width: 40%;
+  margin: 0;
+}
+
 @media screen and (max-width: 768px) {
   .auth-main {
     flex-direction: column;

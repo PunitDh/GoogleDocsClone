@@ -11,6 +11,7 @@ import {
   validatePassword,
   generateHashedPassword,
 } from "./utils";
+import OmniAuth from "./components/OmniAuth";
 
 function Register({ setToken, currentUser }) {
   const notification = useNotification();
@@ -121,6 +122,7 @@ function Register({ setToken, currentUser }) {
               </div>
 
               <hr className="thin-line" />
+              <OmniAuth />
             </form>
           </section>
         </main>

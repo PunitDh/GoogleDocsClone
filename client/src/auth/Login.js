@@ -7,6 +7,7 @@ import Notification from "../components/Notification";
 import { authenticateUser } from "./utils";
 import PasswordField from "./PasswordField";
 import LeftSection from "./components/LeftSection";
+import OmniAuth from "./components/OmniAuth";
 
 function Login({ setToken, currentUser }) {
   const notification = useNotification();
@@ -81,6 +82,7 @@ function Login({ setToken, currentUser }) {
               </div>
 
               <hr className="thin-line" />
+              <OmniAuth />
             </form>
           </section>
         </main>
