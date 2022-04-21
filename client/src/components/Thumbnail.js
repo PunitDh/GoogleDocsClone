@@ -19,7 +19,6 @@ function Thumbnail({
   token,
 }) {
   const [showModal, setShowModal] = useState(false);
-  console.log({ token });
 
   const currentUser = token && JWTDecode(token);
 

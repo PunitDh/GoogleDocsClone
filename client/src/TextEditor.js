@@ -34,8 +34,8 @@ function TextEditor({ socket, setSocket, token }) {
   const currentUser = JWTDecode(token);
   const [loading, setLoading] = useState(true);
 
-  const saveDocument = () => {
-    socket.emit("save-document", quill.getContents(), title, documentId);
+  const saveDocument = (intervalSave) => {
+    socket.emit("save-document", quill.getContents(), title, intervalSave);
   };
 
   const closeDocument = () => {
@@ -53,8 +53,8 @@ function TextEditor({ socket, setSocket, token }) {
     const s = io(process.env.REACT_APP_SERVER_URL);
     setSocket(s);
     window.scrollTo(0, 0);
-    s.on("document-saved", (message) => {
-      notification.set(message, notification.SUCCESS);
+    s.on("document-saved", (message, intervalSave) => {
+      !intervalSave && notification.set(message, notification.SUCCESS);
     });
     return () => {
       s.disconnect();
@@ -124,7 +124,7 @@ function TextEditor({ socket, setSocket, token }) {
     if (socket == null || quill == null) return;
 
     const interval = setInterval(() => {
-      saveDocument();
+      saveDocument(true);
     }, SAVE_INTERVAL_MS);
 
     return () => clearInterval(interval);

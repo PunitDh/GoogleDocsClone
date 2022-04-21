@@ -37,14 +37,14 @@ class DocumentsController {
       this.socket.broadcast.to(documentId).emit("receive-changes", delta);
     });
 
-    this.socket.on("save-document", async (data, title) => {
+    this.socket.on("save-document", async (data, title, intervalSave) => {
       console.log("Saving Document", { userId, documentId });
       const save = await documentDAO.updateDocument(documentId, {
         data,
         title,
       });
       console.log("Document saved", save);
-      this.socket.emit("document-saved", "Document saved");
+      this.socket.emit("document-saved", "Document saved", intervalSave);
     });
 
     this.socket.on("set-title", async (title) => {
