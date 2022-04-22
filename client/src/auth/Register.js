@@ -11,7 +11,7 @@ import {
   validatePassword,
   generateHashedPassword,
 } from "./utils";
-import OmniAuth from "./components/OmniAuth";
+import OmniAuth from "./components/OAuthButton";
 
 function Register({ setToken, currentUser }) {
   const notification = useNotification();

@@ -7,7 +7,7 @@ import Notification from "../components/Notification";
 import { authenticateUser } from "./utils";
 import PasswordField from "./PasswordField";
 import LeftSection from "./components/LeftSection";
-import OmniAuth from "./components/OmniAuth";
+import OmniAuth from "./components/OAuthButton";
 
 function Login({ setToken, currentUser }) {
   const notification = useNotification();

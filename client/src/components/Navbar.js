@@ -56,10 +56,17 @@ function Navbar({ search, handleSearch, token, currentUser }) {
             title="Your Account"
             onClick={() => setShowMenu(true)}
           >
-            {currentUser &&
+            {currentUser && currentUser.picture ? (
+              <img
+                className="manage-account-picture"
+                src={currentUser.picture}
+                alt={currentUser.name}
+              />
+            ) : (
               `${currentUser.firstName
                 .charAt(0)
-                .toUpperCase()}${currentUser.lastName.charAt(0).toUpperCase()}`}
+                .toUpperCase()}${currentUser.lastName.charAt(0).toUpperCase()}`
+            )}
 
             {showMenu && <ManageAccountMenu />}
           </div>

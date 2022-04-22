@@ -17,6 +17,7 @@ import Confirm from "./auth/Confirm";
 import { authenticateUser } from "./auth/utils";
 import Forgot from "./auth/Forgot";
 import Reset from "./auth/Reset";
+import OAuth from "./auth/OAuth";
 
 function App() {
   const [socket, setSocket] = useState();
@@ -101,6 +102,7 @@ function App() {
             )
           }
         />
+        <Route path="/login/oauth" element={<OAuth setToken={setToken} />} />
         <Route
           path="/account/"
           element={

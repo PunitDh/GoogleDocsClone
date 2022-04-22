@@ -130,6 +130,14 @@ io.on("connection", (socket) => {
     return emitToSocket("login-failure", login.message);
   });
 
+  socket.on("google-auth-code", async (code) => {
+    const googleAuth = await authController.googleAuthCode(code);
+    if (googleAuth.success) {
+      return emitToSocket("google-auth-code-success", googleAuth.jwt);
+    }
+    return emitToSocket("google-auth-code-failure", googleAuth.message);
+  });
+
   socket.on("update-account", async (currentUser, token) => {
     const updateAccount = await authController.updateAccount(
       currentUser,

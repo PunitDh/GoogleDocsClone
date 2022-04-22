@@ -64,10 +64,11 @@ class DocumentsController {
     console.log("Deleting document");
     const user = await userDAO.getUser(userId);
     const decoded = authService.verifyToken(token);
+    const document = await documentDAO.getDocument(documentId);
 
     if (
       user?.superUser ||
-      (user?._id === documentId.userId && decoded?.id === userId)
+      (user?._id.toString() === document.userId && decoded?.id === userId)
     ) {
       const deleted = await documentDAO.deleteDocument(documentId);
       console.log("Document deleted", deleted);

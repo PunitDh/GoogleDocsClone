@@ -1,6 +1,7 @@
 const userDAO = require("../dao/UserDAO");
 const mailerService = require("../service/mailer");
 const authService = require("../service/auth");
+const axios = require("axios");
 
 class AuthController {
   async verifyToken(token) {
@@ -62,17 +63,49 @@ class AuthController {
     return { success: false, message: "User not found" };
   }
 
+  async googleAuthCode(code) {
+    const url = process.env.GOOGLE_TOKEN_URL;
+    const values = {
+      code,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: process.env.FRONTEND_URL + "/login/oauth",
+      grant_type: "authorization_code",
+    };
+    return axios
+      .post(url, new URLSearchParams(values).toString(), {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      })
+      .then(async (res) => {
+        const googleUser = authService.decodeJWT(res.data.id_token);
+
+        const user = await userDAO.getUserByEmail(googleUser.email);
+        let jwt;
+        if (!user) {
+          const newUser = await userDAO.createGoogleUser(googleUser);
+          jwt = authService.authenticateUser(newUser).jwt;
+        } else {
+          const updatedUser = await userDAO.updateGoogleUser(user, googleUser);
+          jwt = authService.authenticateUser(updatedUser).jwt;
+        }
+        return { jwt, success: true, message: "Login successful" };
+      })
+      .catch((err) => {
+        console.log(err.message);
+        return {
+          message: "Failed to authenticate with Google",
+          success: false,
+        };
+      });
+  }
+
   async updateAccount(currentUser, token) {
     const decoded = authService.verifyToken(token);
     if (decoded) {
-      const userData = await userDAO.getUser(currentUser.id);
-      if (userData) {
-        userData.firstName = currentUser.firstName;
-        userData.lastName = currentUser.lastName;
-        userData.email = currentUser.email;
-      }
       try {
-        await userDAO.saveUser(userData);
+        await userDAO.updateUser(currentUser);
         return { success: true, message: "Account updated successfully" };
       } catch (err) {
         console.log("Failed to update account", err);
@@ -96,8 +129,7 @@ class AuthController {
           authService.verifyPassword(passwordObj.oldPassword, user.password)
         ) {
           try {
-            user.password = passwordObj.newPassword;
-            await userDAO.saveUser(user);
+            await userDAO.updatePassword(user, passwordObj.newPassword);
             console.log("Password changed successfully");
             return { message: "Password changed successfully", success: true };
           } catch (err) {

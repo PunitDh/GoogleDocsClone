@@ -4,25 +4,25 @@ const { v4: uuid } = require("uuid");
 
 class AuthService {
   authenticateUser(userData) {
-    const currentUser = {
+    const user = {
       email: userData.email,
       firstName: userData.firstName,
       lastName: userData.lastName,
       id: userData._id,
       confirmed: userData.confirmed,
       superUser: userData.superUser,
+      picture: userData.picture,
+      googleId: userData.googleId,
     };
 
     return {
-      jwt: `Bearer ${this.generateJWT(currentUser)}`,
-      user: currentUser,
+      jwt: `Bearer ${this.generateJWT(user)}`,
+      user,
     };
   }
 
-  generateJWT(userData, expiresIn = "1d") {
-    return JWT.sign(userData, process.env.JWT_SECRET, {
-      expiresIn,
-    });
+  generateJWT(data) {
+    return JWT.sign(data, process.env.JWT_SECRET);
   }
 
   verifyToken(token) {
@@ -39,6 +39,10 @@ class AuthService {
     } catch (err) {
       return false;
     }
+  }
+
+  decodeJWT(token) {
+    return JWT.decode(token);
   }
 
   verifyPassword(password, userDataPassword) {

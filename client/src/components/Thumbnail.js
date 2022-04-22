@@ -28,10 +28,12 @@ function Thumbnail({
       setShowModal(false);
     }
   };
-
   return (
     <>
-      <div className={visible ? "thumbnail-container" : "hidden"}>
+      <div
+        className={visible ? "thumbnail-container" : "hidden"}
+        title={typeof title === "object" ? title.props.children[0] : title}
+      >
         <Link to={link} className={create ? "document" : "thumbnail-content"}>
           <pre>{display}</pre>
         </Link>

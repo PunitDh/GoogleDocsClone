@@ -42,6 +42,14 @@ const User = new Schema(
       required: false,
       expires: "1h",
     },
+    picture: {
+      type: String,
+      required: false,
+    },
+    googleId: {
+      type: String,
+      required: false,
+    },
   },
   { timestamps: true }
 );
