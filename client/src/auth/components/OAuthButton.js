@@ -6,6 +6,8 @@ function OmniAuth() {
     window.location.href = process.env.REACT_APP_GOOGLE_OMNIAUTH_URL;
   };
 
+  console.log(process.env.REACT_APP_GOOGLE_OMNIAUTH_URL);
+
   return <GoogleButton title="Sign in with Google" onClick={handleOmniAuth} />;
 }
 
