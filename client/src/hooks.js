@@ -22,6 +22,51 @@ export const useNotification = () => {
   };
 };
 
+export const useDialog = () => {
+  const nullState = {
+    title: null,
+    message: null,
+    confirmText: null,
+    cancelText: null,
+    onConfirm: null,
+    onCancel: null,
+    show: false,
+  };
+
+  const [showDialog, setShowDialog] = useState(nullState);
+
+  return {
+    set: ({
+      title,
+      message,
+      type,
+      confirmText = "Confirm",
+      cancelText = "Cancel",
+      onConfirm,
+      onCancel,
+    }) =>
+      setShowDialog({
+        title,
+        message,
+        type,
+        confirmText,
+        cancelText,
+        onConfirm,
+        onCancel,
+        show: true,
+      }),
+    hide: () => setShowDialog(nullState),
+    title: showDialog.title,
+    message: showDialog.message,
+    type: showDialog.type,
+    confirmText: showDialog.confirmText,
+    cancelText: showDialog.cancelText,
+    onConfirm: showDialog.onConfirm,
+    onCancel: showDialog.onCancel,
+    show: showDialog.show,
+  };
+};
+
 export const useQuery = (queryName) =>
   new URLSearchParams(useLocation().search).get(queryName);
 

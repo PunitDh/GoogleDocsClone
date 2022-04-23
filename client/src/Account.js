@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import "./account.css";
 import Notification from "./components/Notification";
-import { useNotification, useSocket } from "./hooks";
+import { useDialog, useNotification, useSocket } from "./hooks";
 import { JWTDecode } from "./auth/utils";
 import Dialog from "./components/Dialog";
 import { Navigate } from "react-router-dom";
@@ -15,6 +15,7 @@ function Account({ token }) {
   const [loading, setLoading] = useState(true);
   const notification = useNotification();
   const [showModal, setShowModal] = useState(false);
+  const dialog = useDialog();
   const [accountDeleted, setAccountDeleted] = useState(false);
   const currentUser = JWTDecode(token);
 
@@ -86,7 +87,7 @@ function Account({ token }) {
 
   const handleDeleteAccount = (e) => {
     e.preventDefault();
-    setShowModal(false);
+    dialog.hide();
     if (socket?.connected) {
       socket.emit("delete-permanently", token);
       socket.on("user-deleted", (message) => {
@@ -109,16 +110,7 @@ function Account({ token }) {
     <>
       <Notification notification={notification} />
       {accountDeleted && <Navigate to="/logout" />}
-      {
-        <Dialog
-          confirmationTitle="Confirm Delete"
-          confirmationMessage="Are you sure you want to delete your account? All your documents will
-          be permanently deleted. This operation is not reversible."
-          setShowModal={setShowModal}
-          showModal={showModal}
-          onYes={handleDeleteAccount}
-        />
-      }
+      {<Dialog dialog={dialog} />}
       <div className="container">
         <Navbar token={token} currentUser={currentUser} />
         {loading ? (
@@ -201,7 +193,17 @@ function Account({ token }) {
                   <label>Delete permanently?</label>
                   <button
                     className="form-button delete-account-button"
-                    onClick={() => setShowModal(true)}
+                    onClick={() =>
+                      dialog.set({
+                        title: "Confirm Delete",
+                        message: `Are you sure you want to delete your account?
+                          All your documents will be permanently deleted.
+                          This operation is not reversible.`,
+                        onConfirm: handleDeleteAccount,
+                        onCancel: dialog.hide,
+                        confirmText: "Delete",
+                      })
+                    }
                   >
                     Delete
                   </button>

@@ -9,14 +9,6 @@ class MailerService {
   async sendConfirmationEmail(userData) {
     const { jwt, confirmationToken } = this.getConfirmationEmailToken(userData);
 
-    userData.confirmationToken = confirmationToken;
-
-    try {
-      await userDAO.saveUser(userData);
-    } catch (err) {
-      console.log("Failed to save confirmation email token", err);
-    }
-
     this.sendEmail(
       "confirm-email.ejs",
       userData.email,
@@ -27,6 +19,8 @@ class MailerService {
       },
       "Confirmation"
     );
+
+    return confirmationToken;
   }
 
   getConfirmationEmailToken(userData) {
@@ -44,8 +38,9 @@ class MailerService {
       String(Math.floor(Math.random() * (max - min) + min));
 
     const code = randBetween(100000, 999999);
-    userData.resetPasswordToken = authService.createHashedPassword(code);
-    await userDAO.saveUser(userData);
+    userDAO.updateUser(userData, {
+      resetPasswordToken: authService.createHashedPassword(code),
+    });
 
     this.sendEmail(
       "forgot-password.ejs",
@@ -54,24 +49,6 @@ class MailerService {
       { code },
       "Reset Password"
     );
-  }
-
-  async confirmUserAccount(jwt) {
-    try {
-      const decoded = authService.verifyJWT(jwt);
-      const userData = await userDAO.getUser(decoded.id);
-      if (userData) {
-        if (userData.confirmationToken === decoded.confirmationToken) {
-          userData.confirmed = true;
-          userData.confirmationToken = null;
-          await userDAO.saveUser(userData);
-          return userData;
-        }
-      }
-      return false;
-    } catch (err) {
-      return false;
-    }
   }
 
   sendEmail(emailTemplate, to, subject, data = {}, loggingInfo = "") {

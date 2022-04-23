@@ -14,7 +14,7 @@ class AuthController {
   }
 
   async confirmUserAccount(token) {
-    const confirmedUser = await authService.confirmUserAccount(token);
+    const confirmedUser = await userDAO.confirmUserAccount(token);
     if (confirmedUser) {
       const { jwt } = authService.authenticateUser(confirmedUser);
       return jwt;
@@ -33,9 +33,6 @@ class AuthController {
 
         const { jwt } = authService.authenticateUser(userData);
         console.log("Email address registered successfully");
-
-        await mailerService.sendConfirmationEmail(userData);
-        console.log("Confirmation email sent");
         return {
           message: "Email address registered successfully",
           jwt,

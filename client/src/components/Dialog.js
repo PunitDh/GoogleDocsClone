@@ -1,20 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
-function Dialog({
-  confirmationTitle,
-  confirmationMessage,
-  setShowModal,
-  showModal,
-  onYes,
-}) {
+function Dialog({ dialog }) {
   const yesButton = useRef();
   const noButton = useRef();
 
   const handleKeyDown = (e) => {
     switch (e.code) {
       case "Escape":
-        setShowModal(false);
+        dialog.hide();
         break;
       case "ArrowRight":
         e.preventDefault();
@@ -30,41 +24,50 @@ function Dialog({
   };
 
   useEffect(() => {
-    if (showModal) {
+    if (dialog.show) {
       yesButton.current.addEventListener("keydown", handleKeyDown);
       yesButton.current.focus();
       noButton.current.addEventListener("keydown", handleKeyDown);
     }
-  }, [showModal]);
+
+    return () => {
+      yesButton.current.removeEventListener("keydown", handleKeyDown);
+      noButton.current.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [dialog.show]);
 
   return (
-    <dialog className="delete-confirmation-dialog" id="modal" open={showModal}>
+    <dialog
+      className="delete-confirmation-dialog"
+      id="modal"
+      open={dialog.show}
+    >
       <div className="delete-confirmation-dialog-container">
         <div className="delete-confirmation-dialog-title">
           <WarningAmberIcon className="delete-confirmation-icon" />
-          {confirmationTitle}
+          {dialog.title}
         </div>
         <div className="delete-confirmation-dialog-content">
-          {confirmationMessage}
+          {dialog.message}
         </div>
         <div className="delete-confirmation-dialog-buttons-container">
           <button
             id="modal-yes-button"
             className="delete-confirmation-dialog-button"
-            onClick={onYes}
+            onClick={dialog.onConfirm}
             tabIndex="0"
             ref={yesButton}
           >
-            Yes
+            {dialog.confirmText}
           </button>
           <button
             id="modal-no-button"
             className="delete-confirmation-dialog-button"
-            onClick={() => setShowModal(false)}
+            onClick={dialog.onCancel}
             tabIndex="1"
             ref={noButton}
           >
-            No
+            {dialog.cancelText}
           </button>
         </div>
       </div>

@@ -5,6 +5,7 @@ import "../documents.css";
 import "./thumbnail.css";
 import Dialog from "./Dialog";
 import { JWTDecode } from "../auth/utils";
+import { useDialog } from "../hooks";
 
 function Thumbnail({
   link,
@@ -19,13 +20,14 @@ function Thumbnail({
   token,
 }) {
   const [showModal, setShowModal] = useState(false);
+  const dialog = useDialog();
 
   const currentUser = token && JWTDecode(token);
 
   const handleDelete = () => {
     if (socket?.connected) {
       socket.emit("delete-document", documentId, currentUser.id, token);
-      setShowModal(false);
+      dialog.hide();
     }
   };
   return (
@@ -40,7 +42,15 @@ function Thumbnail({
         {!create && (currentUser.superUser || ownerId === currentUser.id) && (
           <DeleteForeverIcon
             className="delete-icon"
-            onClick={() => setShowModal(true)}
+            onClick={() =>
+              dialog.set({
+                title: "Confirm Delete",
+                message: `Are you sure you want to delete ${title}?`,
+                onConfirm: handleDelete,
+                onCancel: dialog.hide,
+                confirmText: "Delete",
+              })
+            }
           />
         )}
         <Link to={link} className="thumbnail-title-link">
@@ -56,6 +66,7 @@ function Thumbnail({
       </div>
       {!create && (
         <Dialog
+          dialog={dialog}
           confirmationTitle="Confirm Delete"
           confirmationMessage={`Are you sure you want to delete ${title}?`}
           setShowModal={setShowModal}

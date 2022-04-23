@@ -92,8 +92,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("confirm-email", async (token) => {
-    const user = await authController.confirmUserAccount(token);
-    if (user) {
+    const jwt = await authController.confirmUserAccount(token);
+    if (jwt) {
       return emitToSocket("confirm-email-success", jwt);
     }
     return emitToSocket("confirm-email-failure");

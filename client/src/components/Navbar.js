@@ -63,6 +63,7 @@ function Navbar({ search, handleSearch, token, currentUser }) {
                 alt={currentUser.name}
               />
             ) : (
+              currentUser &&
               `${currentUser.firstName
                 .charAt(0)
                 .toUpperCase()}${currentUser.lastName.charAt(0).toUpperCase()}`
