@@ -134,12 +134,16 @@
     gap: 0.5rem;
   }
 
-  .auth-screen-left-section {
+  .auth-main section {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 0.5rem;
-    height: 50%;
+    height: 30%;
+  }
+
+  .auth-main section:nth-child(2) {
+    height: 70%;
   }
 
   .auth-screen-left-section h1 {
@@ -159,15 +163,35 @@
     text-align: center;
     margin: 0 auto;
   }
-}
 
-@media screen and (max-width: 300px) {
-  .auth-screen-left-section {
+  .auth-main section form input, .account-manage-container input {
     height: 100%;
   }
 
+  .password-eye {
+    top: 0rem;
+  }
+  
+}
+
+@media screen and (max-width: 300px) {
+  .auth-main section {
+    height: 40%;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    font-size: smaller;
+  }
+
   .auth-main section:nth-child(2) {
-    height: 50%;
+    height: 60%;
+  }
+
+  .password-eye {
+    left: 105%;
+  }
+
+  .auth-main section form input, .account-manage-container input {
+    height: 100%;
   }
 }
 
@@ -180,7 +204,7 @@
 }
 
 .logout-message {
-  font-family: sans-serif;
+  font-family: 'Roboto', sans-serif;
   color: #02153d;
   font-size: 1.2rem;
   text-align: center;

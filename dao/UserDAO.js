@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const authService = require("../service/auth");
 
 class UserDAO {
   async getUser(userId) {
@@ -29,7 +30,7 @@ class UserDAO {
       lastName: googleUser.family_name,
       googleId: googleUser.sub,
       picture: googleUser.picture,
-      password: "",
+      password: authService.createHashedPassword(authService.generateUUID()),
     });
 
     return await this.saveUser(newUser);

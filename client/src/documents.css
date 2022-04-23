@@ -1,5 +1,5 @@
 .container {
-  font-family: sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 nav {
@@ -215,7 +215,7 @@ nav {
   border: 1px solid rgba(0,0,0,0.1);
   user-select: none;
   animation: fadeIn 0.3s ease-in-out;
-  font-family: sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 .delete-confirmation-dialog-container {
@@ -311,7 +311,7 @@ nav {
 }
 
 pre {
-  font-family: sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 

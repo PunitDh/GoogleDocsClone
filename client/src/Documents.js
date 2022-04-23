@@ -54,6 +54,12 @@ function Documents({ token }) {
       setLoading(false);
     });
 
+    s.on("invalid-token", (message) => {
+      notification.set("Failed to verify token", notification.ERROR);
+      localStorage.removeItem(process.env.REACT_APP_TOKEN_NAME);
+      window.location.href = "/";
+    });
+
     return () => s.disconnect();
   }, []);
 

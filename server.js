@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
     if (documents) {
       return socket.emit("load-documents", documents);
     }
-    return emitToSocket("invalid-token");
+    return emitToSocket("invalid-token", "Failed to verify token");
   });
 
   socket.on("get-document", async (documentId, title, public, userId) => {
@@ -88,7 +88,7 @@ io.on("connection", (socket) => {
     if (user) {
       return emitToSocket("verified-token", user);
     }
-    return emitToSocket("invalid-token");
+    return emitToSocket("invalid-token", "Failed to verify token");
   });
 
   socket.on("confirm-email", async (token) => {

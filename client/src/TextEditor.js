@@ -67,7 +67,7 @@ function TextEditor({ socket, setSocket, token }) {
     socket.once("load-document", (document) => {
       quill.setContents(document?.data);
       quill.enable(true);
-      setTitle(document?.title);
+      setTitle(document.title);
       setPublicDocument(document?.public);
       setLoading(false);
     });
