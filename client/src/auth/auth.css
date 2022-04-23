@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: row;
   height: 100%;
-  border-top: 1px solid rgba(0,0,0,0.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .auth-main section {
@@ -28,7 +28,7 @@
   width: 100%;
   height: 100%;
   gap: 1rem;
-  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   color: #02153d;
 }
 
@@ -46,7 +46,7 @@
 
 .auth-screen-left-section h1 {
   color: black;
-  text-shadow: 0 0.5rem 1rem rgba(0,0,0,0.5);
+  text-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
   padding: 0;
 }
 
@@ -58,14 +58,15 @@
   width: 100%;
 }
 
-.auth-main section form input, .account-manage-container input {
+.auth-main section form input,
+.account-manage-container input {
   height: 2rem;
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 0.5rem;
   font-size: 1rem;
   color: #02153d;
   background-color: #eee;
-  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   padding-left: 0.5rem;
 }
 
@@ -117,7 +118,7 @@
 }
 
 .thin-line {
-  border: 1px solid rgba(0,0,0,0.2);
+  border: 1px solid rgba(0, 0, 0, 0.2);
   width: 40%;
   margin: 0;
 }
@@ -147,7 +148,7 @@
   }
 
   .auth-screen-left-section h1 {
-    text-shadow: 0 0 0 rgba(0,0,0,0)
+    text-shadow: 0 0 0 rgba(0, 0, 0, 0);
   }
 
   .auth-main section form h2 {
@@ -159,19 +160,15 @@
     align-items: center;
   }
 
-  .auth-screen-left-section h1, .auth-screen-left-section h3 {
+  .auth-screen-left-section h1,
+  .auth-screen-left-section h3 {
     text-align: center;
     margin: 0 auto;
-  }
-
-  .auth-main section form input, .account-manage-container input {
-    height: 100%;
   }
 
   .password-eye {
     top: 0rem;
   }
-  
 }
 
 @media screen and (max-width: 300px) {
@@ -190,21 +187,21 @@
     left: 105%;
   }
 
-  .auth-main section form input, .account-manage-container input {
+  .auth-main section form input,
+  .account-manage-container input {
     height: 100%;
   }
 }
 
-
 .auth-screen-left-section {
-  background-image: url('../assets/logo512.png');
+  background-image: url("../assets/logo512.png");
   background-size: contain;
-  background-blend-mode:lighten;
+  background-blend-mode: lighten;
   background-repeat: no-repeat;
 }
 
 .logout-message {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   color: #02153d;
   font-size: 1.2rem;
   text-align: center;
