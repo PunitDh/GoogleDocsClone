@@ -87,12 +87,11 @@ class AuthController {
           const updatedUser = await userDAO.updateGoogleUser(user, googleUser);
           jwt = authService.authenticateUser(updatedUser).jwt;
         }
-        console.log("Working");
+
         return { jwt, success: true, message: "Login successful" };
       })
       .catch((err) => {
-        console.log("Not working");
-        console.log(err.message);
+        console.log(err);
         return {
           message: "Failed to authenticate with Google",
           success: false,
