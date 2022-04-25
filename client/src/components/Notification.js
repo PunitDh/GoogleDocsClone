@@ -21,13 +21,22 @@ function Notification({ notification }) {
     };
   }, [notification.message, notification.type]);
 
+  const ICONS = {
+    success: DoneIcon,
+    error: CancelIcon,
+    warning: PriorityHighIcon,
+  };
+
+  const Icon = ICONS[notification.type];
+
   return (
     notification.message && (
-      <div className={`notification-container ${notification.type}`}>
-        <div className="notification-icon" onClick={() => handleClose(0)}>
-          {notification.type === notification.SUCCESS && <DoneIcon />}
-          {notification.type === notification.ERROR && <CancelIcon />}
-          {notification.type === notification.WARNING && <PriorityHighIcon />}
+      <div
+        className={`notification-container ${notification.type}`}
+        onClick={() => handleClose(0)}
+      >
+        <div className="notification-icon">
+          <Icon />
         </div>
         {notification.message}
       </div>

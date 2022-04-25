@@ -23,7 +23,7 @@ const TOOLBAR_OPTIONS = [
   ["clean"],
 ];
 
-function TextEditor({ socket, setSocket, token }) {
+function TextEditor({ token }) {
   const { id: documentId } = useParams();
   const notification = useNotification();
   const query = useQuery("public");
@@ -33,8 +33,9 @@ function TextEditor({ socket, setSocket, token }) {
   const [publicDocument, setPublicDocument] = useState(query === "true");
   const currentUser = JWTDecode(token);
   const [loading, setLoading] = useState(true);
+  const [socket, setSocket] = useState(null);
 
-  const saveDocument = (intervalSave) => {
+  const saveDocument = (intervalSave = false) => {
     socket.emit("save-document", quill.getContents(), title, intervalSave);
   };
 
@@ -53,7 +54,7 @@ function TextEditor({ socket, setSocket, token }) {
     const s = io(process.env.REACT_APP_SERVER_URL);
     setSocket(s);
     window.scrollTo(0, 0);
-    s.on("document-saved", (message, intervalSave) => {
+    s.on("document-saved", (message, intervalSave = false) => {
       !intervalSave && notification.set(message, notification.SUCCESS);
     });
     return () => {
@@ -162,11 +163,11 @@ function TextEditor({ socket, setSocket, token }) {
               onChange={handleTitleChange}
               onBlur={saveTitle}
               title="Rename document"
-            />
+            />{" "}
             <div
               className="button-icon"
               title="Save document"
-              onClick={saveDocument}
+              onClick={() => saveDocument(false)}
             >
               <SaveIcon />
             </div>

@@ -141,7 +141,10 @@ function Documents({ token }) {
               </div>
             </section>
             <section>
-              <h3>Recent documents</h3>
+              <h3>
+                Recent documents &mdash; {documents.length} document
+                {document.length === 1 ? "" : "s"}
+              </h3>
               <div className="content">
                 {documents.map((doc) => (
                   <Thumbnail

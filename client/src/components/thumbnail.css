@@ -10,7 +10,7 @@
 }
 
 .thumbnail-container:hover .thumbnail-title-link {
-  color: #02153d;
+  color: var(--color-primary-variant);
 }
 
 .thumbnail-title-link {

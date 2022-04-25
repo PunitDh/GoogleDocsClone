@@ -15,7 +15,6 @@
   align-items: center;
   width: 50%;
   height: 100%;
-  background-color: #eee;
   gap: 3rem;
   flex-direction: column;
 }
@@ -28,12 +27,12 @@
   width: 100%;
   height: 100%;
   gap: 1rem;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-  color: #02153d;
+
+  color: var(--color-primary-variant);
 }
 
 .auth-main section form h2 {
-  color: #444;
+  color: var(--color-primary-variant);
   width: 60%;
   text-align: right;
 }
@@ -45,9 +44,16 @@
 }
 
 .auth-screen-left-section h1 {
-  color: black;
-  text-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
-  padding: 0;
+  color: var(--color-primary-variant);
+  padding: 20px;
+  border-radius: 5rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.auth-screen-left-section h1:hover {
+  background-color: var(--color-primary-variant);
+  color: var(--color-primary);
 }
 
 .user-input {
@@ -64,7 +70,7 @@
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 0.5rem;
   font-size: 1rem;
-  color: #02153d;
+  color: var(--color-primary-variant);
   background-color: #eee;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   padding-left: 0.5rem;
@@ -110,11 +116,11 @@
   right: 0.5rem;
   cursor: pointer;
   color: gray;
-  z-index: 2000;
+  z-index: 5;
 }
 
 .password-eye:hover {
-  color: #02153d;
+  color: var(--color-primary-variant);
 }
 
 .thin-line {
@@ -140,19 +146,17 @@
     justify-content: center;
     align-items: center;
     gap: 0.5rem;
-    height: 30%;
+    height: 50%;
+    border-radius: 0;
   }
 
   .auth-main section:nth-child(2) {
     height: 70%;
   }
 
-  .auth-screen-left-section h1 {
-    text-shadow: 0 0 0 rgba(0, 0, 0, 0);
-  }
-
   .auth-main section form h2 {
     text-align: center;
+    font-size: 1.2rem;
   }
 
   .auth-main section form .form-links-container {
@@ -194,15 +198,16 @@
 }
 
 .auth-screen-left-section {
-  background-image: url("../assets/logo512.png");
-  background-size: contain;
-  background-blend-mode: lighten;
-  background-repeat: no-repeat;
+  /* background: linear-gradient(var(--color-bg) 0%, var(--color-bg-variant) 100%); */
+  color: var(--color-primary);
+  border-radius: 2rem;
+  background-repeat: repeat;
+  user-select: none;
 }
 
 .logout-message {
   font-family: "Roboto", sans-serif;
-  color: #02153d;
+  color: var(--color-primary-variant);
   font-size: 1.2rem;
   text-align: center;
   padding: 1rem;

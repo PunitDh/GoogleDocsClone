@@ -31,8 +31,8 @@ function Dialog({ dialog }) {
     }
 
     return () => {
-      yesButton.current.removeEventListener("keydown", handleKeyDown);
-      noButton.current.removeEventListener("keydown", handleKeyDown);
+      yesButton?.current?.removeEventListener("keydown", handleKeyDown);
+      noButton?.current?.removeEventListener("keydown", handleKeyDown);
     };
   }, [dialog.show]);
 

@@ -16,17 +16,18 @@
   background-color: #e74c3c;
 }
 
-.account-manage-form-control, .account-manage-form-control-password {
+.account-manage-form-control,
+.account-manage-form-control-password {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   width: 100%;
 }
 
-
-.account-manage-form-control label, .account-manage-form-control-password label {
+.account-manage-form-control label,
+.account-manage-form-control-password label {
   text-align: right;
-  word-wrap:break-word;
+  word-wrap: break-word;
   width: 30%;
   margin-right: 1rem;
 }
@@ -41,5 +42,5 @@
   right: 0.5rem;
   cursor: pointer;
   color: gray;
-  z-index: 2000;
+  z-index: 5;
 }

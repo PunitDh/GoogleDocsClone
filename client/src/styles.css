@@ -4,6 +4,14 @@
   box-sizing: border-box;
 }
 
+:root {
+  --color-primary: #00a0e9;
+  --color-primary-variant: #02153d;
+  --color-bg: #3ebdd44f;
+  --color-bg-variant: #bde1f194;
+  --transition: all 0.5s ease;
+}
+
 body {
   background-color: #f3f3f3;
   margin: 0;
@@ -48,12 +56,12 @@ body {
 }
 
 .button-icon:hover {
-  color: #02153d;
+  color: var(--color-primary-variant);
 }
 
 .document-title {
   width: 90%;
-  border: 1px solid rgba(0, 0, 0, 0.0);
+  border: 1px solid rgba(0, 0, 0, 0);
   color: gray;
   background-color: #eee;
   border-radius: 0.5rem;
@@ -88,7 +96,7 @@ body {
   align-items: center;
   margin: 0.3rem;
   user-select: none;
-  color:rgba(0, 0, 0, 0.5);
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .privacy-change-container * {
