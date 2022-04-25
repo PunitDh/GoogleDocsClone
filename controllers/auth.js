@@ -76,18 +76,22 @@ class AuthController {
         },
       })
       .then(async (res) => {
+        console.log({ res });
         const googleUser = authService.decodeJWT(res.data.id_token);
 
         const user = await userDAO.getUserByEmail(googleUser.email);
+        console.log({ user });
         let jwt;
         if (!user) {
+          console.log("User not found, creating new user");
           const newUser = await userDAO.createGoogleUser(googleUser);
           jwt = authService.authenticateUser(newUser).jwt;
         } else {
+          console.log("User found, logging in");
           const updatedUser = await userDAO.updateGoogleUser(user, googleUser);
           jwt = authService.authenticateUser(updatedUser).jwt;
         }
-
+        console.log("Google auth successful");
         return { jwt, success: true, message: "Login successful" };
       })
       .catch((err) => {
